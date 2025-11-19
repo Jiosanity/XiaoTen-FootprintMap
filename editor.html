@@ -11,7 +11,7 @@
     header h1 { margin:0 0 6px; font-size:22px; }
     header p { margin:0; opacity:.85; font-size:14px; }
     main { display:flex; flex-wrap:wrap; gap:20px; padding:20px 24px; max-width:1400px; margin:0 auto; }
-    .panel { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:20px 24px; flex:1 1 420px; box-shadow:0 2px 6px rgba(0,0,0,.04); min-width:320px; box-sizing:border-box; }
+    .panel { background:#fff; border:1px solid #e2e8f0; border-radius:10px; padding:20px 24px; flex:1 1 420px; min-width:320px; box-sizing:border-box; }
     .panel h2 { margin:0 0 16px; font-size:16px; color:#334155; display:flex; align-items:center; gap:6px; }
     form .group { margin-bottom:14px; }
     label { display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:5px; }
@@ -23,13 +23,11 @@
       font-size:14px; 
       background:#fff; 
       box-sizing:border-box;
-      transition:border-color 0.2s, box-shadow 0.2s;
       font-family: inherit;
     }
     input[type=text]:focus, input[type=date]:focus, textarea:focus, select:focus {
       outline:none;
       border-color:#6366f1;
-      box-shadow:0 0 0 3px rgba(99,102,241,0.1);
     }
     input[type=checkbox] { cursor:pointer; }
     textarea { resize:vertical; min-height:80px; line-height:1.5; }
@@ -43,14 +41,13 @@
       padding:9px 16px; 
       font-size:14px; 
       border-radius:6px; 
-      transition:all 0.2s;
       font-weight:500;
       white-space:nowrap;
     }
     button.secondary, .btn.secondary { background:#fff; color:#374151; border-color:#cbd5e1; }
     button.danger { background:#dc2626; border-color:#dc2626; }
-    button:hover, .btn:hover { filter:brightness(1.08); transform:translateY(-1px); box-shadow:0 2px 8px rgba(0,0,0,0.15); }
-    button:active, .btn:active { transform:translateY(0); }
+    button:hover, .btn:hover { opacity:0.9; }
+    button:active, .btn:active { opacity:0.8; }
     button:disabled { opacity:0.5; cursor:not-allowed; }
     #map { height:360px; border-radius:8px; overflow:hidden; border:1px solid #cbd5e1; margin-bottom:8px; }
     .photos-list { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
@@ -60,23 +57,17 @@
     .location-list { max-height:320px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:10px; background:#fff; margin-bottom:12px; }
     .location-item {
       border:1px solid #e2e8f0;
-      border-radius:8px;
-      padding:10px 12px 36px 32px;
+      border-radius:6px;
+      padding:8px 10px 28px 28px;
       margin-bottom:6px;
       background:#f8fafc;
       font-size:13px;
       position:relative;
-      transition:all 0.18s;
-      min-height:64px;
+      min-height:54px;
       box-sizing:border-box;
     }
-    .location-item:hover {
-      background:#f1f5f9;
-      border-color:#b6bfe6;
-      box-shadow:0 1px 4px rgba(99,102,241,0.06);
-    }
     .location-item h3 {
-      margin:0 0 4px;
+      margin:0 0 3px;
       font-size:14px;
       color:#1f2937;
       font-weight:600;
@@ -84,50 +75,50 @@
     }
     .location-item .item-checkbox {
       position:absolute;
-      left:10px;
-      top:10px;
-      width:16px;
-      height:16px;
+      left:8px;
+      top:8px;
+      width:15px;
+      height:15px;
       cursor:pointer;
       accent-color:#6366f1;
     }
     .location-item .item-meta {
       font-size:11px;
       color:#64748b;
-      margin-bottom:4px;
-      line-height:1.5;
+      margin-bottom:3px;
+      line-height:1.4;
     }
     .location-item .item-desc {
       color:#475569;
-      line-height:1.4;
-      margin-bottom:4px;
+      line-height:1.3;
+      margin-bottom:3px;
       word-break:break-all;
     }
     .location-item .item-actions {
       position:absolute;
-      top:8px;
-      right:8px;
+      top:6px;
+      right:6px;
       display:flex;
       gap:4px;
     }
     .location-item .item-actions button {
       padding:4px 8px;
-      font-size:12px;
-      min-width:38px;
-      height:28px;
+      font-size:11px;
+      min-width:36px;
+      height:24px;
     }
     .location-item .item-nav {
       position:absolute;
-      bottom:8px;
-      right:8px;
+      bottom:4px;
+      right:6px;
       display:flex;
       gap:4px;
     }
     .location-item .item-nav button {
-      padding:3px 6px;
-      font-size:13px;
-      width:28px;
-      height:24px;
+      padding:2px 5px;
+      font-size:12px;
+      width:26px;
+      height:22px;
       display:flex;
       align-items:center;
       justify-content:center;
@@ -152,8 +143,7 @@
       outline:none;
       transition:all 0.2s;
     }
-    .marker-color-swatch:hover { transform:scale(1.1); }
-    .marker-color-swatch[data-selected="1"] { box-shadow:0 0 0 3px #6366f1, 0 2px 8px rgba(0,0,0,.3); transform:scale(1.05); }
+    .marker-color-swatch[data-selected="1"] { box-shadow:0 0 0 3px #6366f1; }
     .marker-color-swatch[data-none="1"] { background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:12px; color:#475569; font-weight:700; }
     .tags-options { display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
     .tag-option { 
@@ -168,10 +158,8 @@
       display:flex; 
       align-items:center; 
       gap:4px;
-      transition:all 0.2s;
       border:1px solid transparent;
     }
-    .tag-option:hover { background:#cbd5e1; }
     .tag-option[data-selected="1"] { background:#6366f1; color:#fff; border-color:#6366f1; }
     .tag-option button { background:none; border:none; color:inherit; cursor:pointer; font-size:14px; padding:0 2px; line-height:1; }
     .tag-option button:hover { opacity:0.7; }
@@ -192,9 +180,7 @@
     <h1>足迹数据构建器</h1>
     <p>可视化录入地点信息，生成符合 FootprintMap 规范的 JSON 数据。</p>
     <div style="margin-top:12px;">
-      <a href="demo.html" style="color:#fff;text-decoration:none;opacity:0.9;font-size:13px;border:1px solid rgba(255,255,255,0.3);padding:6px 12px;border-radius:6px;display:inline-block;transition:all 0.2s;"
-         onmouseover="this.style.opacity='1';this.style.background='rgba(255,255,255,0.15)'"
-         onmouseout="this.style.opacity='0.9';this.style.background='transparent'">← 返回演示页</a>
+      <a href="index.html" style="color:#fff;text-decoration:none;opacity:0.9;font-size:13px;border:1px solid rgba(255,255,255,0.3);padding:6px 12px;border-radius:6px;display:inline-block;">← 返回演示页</a>
     </div>
   </header>
   <main>
@@ -253,8 +239,9 @@
           </div>
         </div>
         <div class="controls">
-          <button type="submit">➕ 添加地点</button>
+          <button type="submit" id="submitBtn">✚ 添加地点</button>
           <button type="button" class="secondary" id="resetFormBtn">清空表单</button>
+          <button type="button" class="secondary" id="cancelEditBtn" style="display:none;">取消编辑</button>
         </div>
         <p class="small">必填项：名称、坐标。其他字段可选但推荐填写描述/日期以丰富信息。</p>
       </form>
@@ -483,6 +470,8 @@
       if(editingIndex !== null){
         locations[editingIndex] = draftObj;
         editingIndex = null;
+        document.getElementById('submitBtn').textContent = '✚ 添加地点';
+        document.getElementById('cancelEditBtn').style.display = 'none';
       } else {
         locations.push(draftObj);
       }
@@ -490,6 +479,20 @@
     });
 
     document.getElementById('resetFormBtn').onclick=()=>{ form.reset(); photosTemp=[]; renderPhotosTemp(); };
+    document.getElementById('cancelEditBtn').onclick=()=>{ 
+      editingIndex = null; 
+      form.reset(); 
+      photosTemp=[]; 
+      renderPhotosTemp(); 
+      showErrors([]);
+      selectedMarkerColor=''; 
+      document.getElementById('markerColor').value=''; 
+      selectedCategories=new Set(); 
+      renderCategoryOptions(); 
+      updateMarkerSelection();
+      document.getElementById('submitBtn').textContent = '✚ 添加地点';
+      document.getElementById('cancelEditBtn').style.display = 'none';
+    };
     document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); triggerAutoPreview(); jsonOutput.textContent=''; } };
     document.getElementById('removeLastBtn').onclick=()=>{ locations.pop(); renderLocations(); persistDraft(); triggerAutoPreview(); };
 
@@ -584,6 +587,8 @@
           document.getElementById('urlLabel').value = loc.urlLabel || '';
           photosTemp = [...(loc.photos||[])]; renderPhotosTemp();
           showErrors([]);
+          document.getElementById('submitBtn').textContent = '✔ 保存修改';
+          document.getElementById('cancelEditBtn').style.display = 'inline-block';
           window.scrollTo({ top:0, behavior:'smooth' });
         };
         
@@ -687,7 +692,7 @@
       autoPreview = !autoPreview;
       toggleAutoPreviewBtn.textContent = autoPreview ? '关闭实时预览' : '开启实时预览';
       toggleAutoPreviewBtn.dataset.on = autoPreview ? '1':'0';
-      if(autoPreview){ triggerAutoPreview(); } else { /* 保留当前 */ }
+      if(autoPreview){ triggerAutoPreview(); }
     };
     document.getElementById('toggleSortDateBtn').onclick=()=>{ sortByDate = !sortByDate; document.getElementById('toggleSortDateBtn').textContent = sortByDate ? '关闭按日期排序' : '开启按日期排序'; triggerAutoPreview(); };
     document.getElementById('togglePruneEmptyBtn').onclick=()=>{ pruneEmpty = !pruneEmpty; document.getElementById('togglePruneEmptyBtn').textContent = '剔除空字段: ' + (pruneEmpty ? '开':'关'); triggerAutoPreview(); };
@@ -747,17 +752,17 @@
     map.on('click', function(ev){ if(ev && ev.lnglat){ const { lng, lat } = ev.lnglat; document.getElementById('coordinates').value = lng.toFixed(6)+','+lat.toFixed(6); } });
     // 地点搜索
     let placeSearch = null;
-    AMap.plugin('AMap.PlaceSearch', ()=>{ placeSearch = new AMap.PlaceSearch({ pageSize:5, pageIndex:1 }); });
+    AMap.plugin('AMap.PlaceSearch', ()=>{ placeSearch = new AMap.PlaceSearch({ pageSize:10, pageIndex:1, city:'全国', citylimit:false }); });
     document.getElementById('placeSearchBtn').onclick=()=> doPlaceSearch();
     document.getElementById('placeSearchInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doPlaceSearch(); } });
     function doPlaceSearch(){
       const kw = document.getElementById('placeSearchInput').value.trim(); if(!kw) return;
       if(!placeSearch){ alert('搜索服务尚未就绪'); return; }
       placeSearch.search(kw, (status, result)=>{
-        if(status==='complete' && result.info==='OK' && result.poiList.pois.length){
+        if(status==='complete' && result.info==='OK' && result.poiList && result.poiList.pois && result.poiList.pois.length){
           const poi = result.poiList.pois[0];
           if(poi.location){ const lng = poi.location.lng; const lat = poi.location.lat; map.setZoomAndCenter(12, [lng, lat]); document.getElementById('coordinates').value = lng.toFixed(6)+','+lat.toFixed(6); }
-        } else { alert('未找到相关地点'); }
+        } else { alert('未找到相关地点，请尝试更具体的关键词'); }
       });
     }
 
