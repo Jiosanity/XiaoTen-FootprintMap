@@ -461,6 +461,14 @@
     box-shadow: none !important;
 }
 
+/* InfoWindow 暗色模式修复 */
+.dark .amap-info-content,
+.dark .amap-info-outer,
+.dark .amap-info-contentContainer {
+    background-color: rgba(33, 35, 40, 0.85) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+}
+
 .dark .amap-control.amap-toolbar,
 .dark .amap-ui-control-zoom {
     background-color: rgba(40, 40, 40, 0.9) !important;
