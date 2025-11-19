@@ -58,16 +58,80 @@
     .photos-list .photo-item button { background:none; color:#dc2626; border:none; padding:0 4px; font-size:14px; cursor:pointer; line-height:1; }
     .photos-list .photo-item button:hover { color:#991b1b; }
     .location-list { max-height:320px; overflow-y:auto; border:1px solid #e2e8f0; border-radius:8px; padding:10px; background:#fff; margin-bottom:12px; }
-    .location-item { border:1px solid #e2e8f0; border-radius:8px; padding:14px 16px; padding-left:42px; padding-top:42px; padding-bottom:52px; margin-bottom:10px; background:#f8fafc; font-size:13px; position:relative; transition:all 0.2s; }
-    .location-item:hover { background:#f1f5f9; border-color:#cbd5e1; box-shadow:0 2px 4px rgba(0,0,0,0.05); }
-    .location-item h3 { margin:0 0 8px; font-size:15px; color:#1f2937; font-weight:600; line-height:1.4; }
-    .location-item .item-checkbox { position:absolute; left:14px; top:14px; width:18px; height:18px; cursor:pointer; }
-    .location-item .item-meta { font-size:12px; color:#64748b; margin-bottom:8px; line-height:1.6; }
-    .location-item .item-desc { color:#475569; line-height:1.5; margin-bottom:8px; }
-    .location-item .item-actions { position:absolute; top:10px; right:10px; display:flex; gap:6px; }
-    .location-item .item-actions button { padding:6px 10px; font-size:12px; min-width:50px; }
-    .location-item .item-nav { position:absolute; bottom:10px; right:10px; display:flex; gap:6px; }
-    .location-item .item-nav button { padding:6px 8px; font-size:13px; width:36px; height:32px; display:flex; align-items:center; justify-content:center; }
+    .location-item {
+      border:1px solid #e2e8f0;
+      border-radius:8px;
+      padding:10px 12px 36px 32px;
+      margin-bottom:6px;
+      background:#f8fafc;
+      font-size:13px;
+      position:relative;
+      transition:all 0.18s;
+      min-height:64px;
+      box-sizing:border-box;
+    }
+    .location-item:hover {
+      background:#f1f5f9;
+      border-color:#b6bfe6;
+      box-shadow:0 1px 4px rgba(99,102,241,0.06);
+    }
+    .location-item h3 {
+      margin:0 0 4px;
+      font-size:14px;
+      color:#1f2937;
+      font-weight:600;
+      line-height:1.3;
+    }
+    .location-item .item-checkbox {
+      position:absolute;
+      left:10px;
+      top:10px;
+      width:16px;
+      height:16px;
+      cursor:pointer;
+      accent-color:#6366f1;
+    }
+    .location-item .item-meta {
+      font-size:11px;
+      color:#64748b;
+      margin-bottom:4px;
+      line-height:1.5;
+    }
+    .location-item .item-desc {
+      color:#475569;
+      line-height:1.4;
+      margin-bottom:4px;
+      word-break:break-all;
+    }
+    .location-item .item-actions {
+      position:absolute;
+      top:8px;
+      right:8px;
+      display:flex;
+      gap:4px;
+    }
+    .location-item .item-actions button {
+      padding:4px 8px;
+      font-size:12px;
+      min-width:38px;
+      height:28px;
+    }
+    .location-item .item-nav {
+      position:absolute;
+      bottom:8px;
+      right:8px;
+      display:flex;
+      gap:4px;
+    }
+    .location-item .item-nav button {
+      padding:3px 6px;
+      font-size:13px;
+      width:28px;
+      height:24px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
     .tag { display:inline-block; background:#6366f1; color:#fff; padding:3px 8px; font-size:11px; border-radius:4px; margin-right:4px; margin-top:4px; }
     .controls { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
     pre#jsonOutput { background:#0f172a; color:#e2e8f0; padding:16px; border-radius:8px; font-size:12px; overflow:auto; max-height:340px; line-height:1.6; margin-top:12px; }
@@ -232,8 +296,10 @@
       </div>
       <pre id="jsonOutput" aria-label="输出 JSON"></pre>
       <h2 style="margin-top:24px;">🔍 实时预览</h2>
-      <div id="previewMap" style="width:100%;height:400px;"></div>
-      <p class="small">预览显示地点标记和基本信息，导出的 JSON 可用于正式 FootprintMap 组件（含完整聚类、筛选等功能）。</p>
+      <div id="previewMapWrap">
+        <div id="previewMap" class="footprint-map" style="width:100%;height:400px;" data-amap-key="4727334ebc13608dbe9ba75266c3d41a"></div>
+      </div>
+      <p class="small">预览为正式 FootprintMap 组件（含聚类、筛选、主题切换等），导出的 JSON 可直接用于生产环境。</p>
     </section>
   </main>
   <footer>
@@ -696,81 +762,56 @@
     }
 
     // 预览地图渲染（使用简化版标记）
+    // 预览区直接用 footprint-map 组件渲染
     function renderPreviewMap(){
+      const wrap = document.getElementById('previewMapWrap');
+      const previewMapEl = document.getElementById('previewMap');
       if(!previewMapEl) return;
       if(!locations.length){ 
         previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;">暂无地点，添加后显示预览。</div>'; 
         return; 
       }
-      try {
-        // 准备导出数据（应用排序和剔除）
-        let exportLocations = locations.map(l=> ({ ...l }));
-        if(sortByDate){
-          exportLocations.sort((a,b)=>{
-            const da = Date.parse(a.date||'');
-            const db = Date.parse(b.date||'');
-            if(isNaN(da) && isNaN(db)) return 0;
-            if(isNaN(da)) return 1;
-            if(isNaN(db)) return -1;
-            return db - da;
-          });
-        }
-        if(pruneEmpty){
-          exportLocations = exportLocations.map(obj=>{
-            const cleaned = { name: obj.name, coordinates: obj.coordinates };
-            ['description','date','url','urlLabel','photos','categories','markerColor'].forEach(k=>{
-              const v = obj[k];
-              if(v===undefined || v===null) return;
-              if(typeof v==='string' && v.trim()==='') return;
-              if(Array.isArray(v) && v.length===0) return;
-              cleaned[k]=v;
-            });
-            return cleaned;
-          });
-        }
-        
-        // 重置并创建地图
-        previewMapEl.innerHTML = '';
-        previewMapEl.style.width = '100%';
-        previewMapEl.style.height = '400px';
-        previewMapEl.style.borderRadius = '8px';
-        previewMapEl.style.overflow = 'hidden';
-        previewMapEl.style.border = '1px solid #cbd5e1';
-        
-        if(!previewMapInstance){
-          previewMapInstance = new AMap.Map(previewMapEl,{ viewMode:'2D', zoom:4, center:[105,36] });
-        } else {
-          previewMapInstance.clearMap();
-        }
-        
-        // 渲染标记
-        const bounds = [];
-        exportLocations.forEach((loc,i)=>{
-          const coord = validateCoordinates(loc.coordinates);
-          if(!coord) return;
-          const gradient = markerGradients[loc.markerColor] || markerGradients.sunset;
-          const marker = new AMap.Marker({
-            position:[coord.lng, coord.lat],
-            content:`<div style="width:24px;height:24px;border-radius:50%;background:${gradient};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer" title="${loc.name}"></div>`,
-            offset:new AMap.Pixel(-12,-12)
-          });
-          marker.on('click',()=>{
-            const info = new AMap.InfoWindow({ 
-              anchor:'bottom-center', 
-              content:`<div style='padding:12px;font-size:13px;max-width:240px;'><strong style='font-size:14px;color:#334155;'>${loc.name}</strong><br><span style='color:#64748b;font-size:11px;'>${loc.date||''}</span><br><p style='margin:8px 0 0;color:#475569;line-height:1.4;'>${(loc.description||'').slice(0,100)}${loc.description&&loc.description.length>100?'...':''}</p></div>` 
-            });
-            info.open(previewMapInstance,[coord.lng, coord.lat]);
-          });
-          previewMapInstance.add(marker);
-          bounds.push([coord.lng, coord.lat]);
+      // 生成临时数据文件 Blob
+      let exportLocations = locations.map(l=> ({ ...l }));
+      if(sortByDate){
+        exportLocations.sort((a,b)=>{
+          const da = Date.parse(a.date||'');
+          const db = Date.parse(b.date||'');
+          if(isNaN(da) && isNaN(db)) return 0;
+          if(isNaN(da)) return 1;
+          if(isNaN(db)) return -1;
+          return db - da;
         });
-        
-        if(bounds.length){ 
-          previewMapInstance.setFitView(null, false, [60, 80, 60, 80]); 
-        }
-      } catch(err){
-        previewMapEl.innerHTML = '<div style="padding:20px;color:#dc2626;font-size:13px;text-align:center;">预览渲染失败: '+ err.message +'</div>';
       }
+      if(pruneEmpty){
+        exportLocations = exportLocations.map(obj=>{
+          const cleaned = { name: obj.name, coordinates: obj.coordinates };
+          ['description','date','url','urlLabel','photos','categories','markerColor'].forEach(k=>{
+            const v = obj[k];
+            if(v===undefined || v===null) return;
+            if(typeof v==='string' && v.trim()==='') return;
+            if(Array.isArray(v) && v.length===0) return;
+            cleaned[k]=v;
+          });
+          return cleaned;
+        });
+      }
+      const obj = { locations: exportLocations };
+      const blob = new Blob([JSON.stringify(obj)], { type:'application/json' });
+      const url = URL.createObjectURL(blob);
+      previewMapEl.setAttribute('data-json', url);
+      // 重新初始化 footprint-map 组件
+      if(window.FootprintMap && typeof window.FootprintMap.bootstrapAll === 'function'){
+        window.FootprintMap.bootstrapAll();
+      } else if(window.FootprintMap){
+        // 兼容旧版本
+        window.FootprintMap(previewMapEl);
+      }
+      // 释放旧 blob
+      if(wrap._lastBlobUrl && wrap._lastBlobUrl!==url){
+        URL.revokeObjectURL(wrap._lastBlobUrl);
+      }
+      wrap._lastBlobUrl = url;
     }
     function triggerAutoPreview(){ if(autoPreview){ generateJson(); renderPreviewMap(); } }
     // 初始尝试预览
