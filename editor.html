@@ -525,7 +525,21 @@
       document.getElementById('cancelEditBtn').style.display = 'none';
     };
     document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); jsonOutput.textContent=''; const wrap = document.getElementById('previewMapWrap'); const previewMapEl = document.getElementById('previewMap'); if(previewMapEl) previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点或导入 JSON 文件，然后点击"刷新预览"。</div>'; } };
-    document.getElementById('removeLastBtn').onclick=()=>{ locations.pop(); renderLocations(); persistDraft(); generateJson(); };
+    document.getElementById('removeLastBtn').onclick=()=>{
+      // 删除最后一个并保持 UI 与数据同步
+      locations.pop();
+      renderLocations();
+      persistDraft();
+      generateJson();
+      // 删除后聚焦到新的最后一项（如果存在）
+      setTimeout(()=>{
+        const items = locationListEl.querySelectorAll('.location-item');
+        if(items.length > 0){
+          const last = items[items.length - 1];
+          last.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+      }, 80);
+    };
 
     function renderLocations(){
       locationListEl.innerHTML='';
@@ -733,7 +747,11 @@
       selectedIdx.sort((a,b)=>b-a).forEach(idx=> locations.splice(idx,1));
       renderLocations(); persistDraft(); generateJson();
     };
-    document.getElementById('locationList').insertAdjacentElement('beforebegin', deleteSelectedBtn);
+    // 将批量删除按钮包裹在一个带底部外边距的容器中，避免与上方控件紧邻
+    const deleteBtnWrap = document.createElement('div');
+    deleteBtnWrap.style.marginBottom = '18px';
+    deleteBtnWrap.appendChild(deleteSelectedBtn);
+    document.getElementById('locationList').insertAdjacentElement('beforebegin', deleteBtnWrap);
 
     // 添加图片按钮
     document.getElementById('addPhotoBtn').onclick=()=>{ addPhotoUrl(); };
