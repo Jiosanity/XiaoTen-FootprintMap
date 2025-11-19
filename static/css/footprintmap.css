@@ -282,12 +282,13 @@
     object-fit: cover;
     border-radius: 4px;
     cursor: pointer;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: none;
 }
 
+/* 移除图片悬停放大与阴影效果（编辑器要求） */
 .footprint-popup__slide img:hover {
-    transform: scale(1.05);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+    transform: none;
+    box-shadow: none;
 }
 
 .footprint-popup__photos-btn {

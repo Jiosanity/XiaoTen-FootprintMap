@@ -299,7 +299,10 @@
     <section class="panel" style="width:100%;">
       <div style="display:flex; align-items:center; justify-content:space-between;">
         <h2 style="margin:0;">🔍 实时预览</h2>
-        <button type="button" class="secondary" id="refreshPreviewBtn" style="font-size:13px; padding:7px 14px;">🔄 刷新预览</button>
+        <div style="display:flex; gap:8px; align-items:center;">
+          <button type="button" class="secondary" id="refreshPreviewBtn" style="font-size:13px; padding:7px 14px;">🔄 刷新预览</button>
+          <button type="button" class="secondary" id="toggleThemeBtn" style="font-size:13px; padding:7px 14px;">⬜ 黑白</button>
+        </div>
       </div>
       <div id="previewMapWrap" style="margin-top:12px;">
         <div id="previewMap" class="footprint-map" style="width:100%;height:500px;" data-amap-key="4727334ebc13608dbe9ba75266c3d41a"></div>
@@ -735,6 +738,24 @@
       const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'footprints.generated.json'; a.click(); URL.revokeObjectURL(a.href); };
     document.getElementById('toggleSortDateBtn').onclick=()=>{ sortByDate = !sortByDate; document.getElementById('toggleSortDateBtn').textContent = sortByDate ? '关闭按日期排序' : '开启按日期排序'; generateJson(); };
     document.getElementById('refreshPreviewBtn').onclick=()=>{ renderPreviewMap(); };
+    // 主题切换（黑白），持久化到 localStorage
+    (function(){
+      const previewWrapEl = document.getElementById('previewMapWrap');
+      const toggleThemeBtnEl = document.getElementById('toggleThemeBtn');
+      if(!previewWrapEl || !toggleThemeBtnEl) return;
+      let previewDark = false;
+      try { previewDark = localStorage.getItem('footprintmap_builder_preview_dark') === 'true'; } catch(e){}
+      function updatePreviewTheme(){
+        if(previewDark) previewWrapEl.classList.add('dark'); else previewWrapEl.classList.remove('dark');
+        toggleThemeBtnEl.textContent = previewDark ? '⬛ 黑色主题' : '⬜ 白色主题';
+      }
+      toggleThemeBtnEl.addEventListener('click', ()=>{
+        previewDark = !previewDark;
+        try { localStorage.setItem('footprintmap_builder_preview_dark', previewDark.toString()); } catch(e){}
+        updatePreviewTheme();
+      });
+      updatePreviewTheme();
+    })();
     // 批量删除按钮逻辑
     const deleteSelectedBtn = document.createElement('button');
     deleteSelectedBtn.type='button'; deleteSelectedBtn.className='danger'; deleteSelectedBtn.textContent='批量删除选中';
