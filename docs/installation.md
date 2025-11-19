@@ -1,6 +1,6 @@
 # 安装指南
 
-本指南将帮助你在任何网站中集成 xiaoten-footprintmap。
+本指南将帮助你在任何网站中集成 XiaoTen-FootprintMap（小十足迹地图）。
 
 ## 系统要求
 
@@ -26,19 +26,21 @@
 ### 方式 1：克隆仓库
 
 ```bash
-git clone https://github.com/Jiosanity/xiaoten-footprintmap.git
-cd xiaoten-footprintmap
+git clone https://github.com/Jiosanity/XiaoTen-FootprintMap.git
+cd XiaoTen-FootprintMap
 ```
 
 ### 方式 2：下载 ZIP
 
-前往 [Releases 页面](https://github.com/Jiosanity/xiaoten-footprintmap/releases) 下载最新版本。
+前往 [Releases 页面](https://github.com/Jiosanity/XiaoTen-FootprintMap/releases) 下载最新版本。
 
-### 方式 3：CDN 引入（即将支持）
+### 方式 3：CDN 引入
+
+建议锁定版本号，以下以 `v1.2.0` 为例：
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Jiosanity/xiaoten-footprintmap/static/css/footprintmap.css">
-<script src="https://cdn.jsdelivr.net/gh/Jiosanity/xiaoten-footprintmap/static/js/footprintmap.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/css/footprintmap.css">
+<script defer src="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/js/footprintmap.js"></script>
 ```
 
 ## 步骤 3：复制文件到你的网站
@@ -54,9 +56,9 @@ cp xiaoten-footprintmap/static/data/footprints.example.json YOUR_WEBSITE/data/
 
 或者根据你的网站结构调整路径。
 
-## 步骤 4：在 HTML 中引入文件
+## 步骤 4：在 HTML 中引入文件（自动引导）
 
-在你的网页中添加以下代码：
+在你的网页中添加以下代码（无需手写初始化，组件会自动加载高德脚本并挂载）：
 
 ```html
 <!DOCTYPE html>
@@ -66,26 +68,22 @@ cp xiaoten-footprintmap/static/data/footprints.example.json YOUR_WEBSITE/data/
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>我的足迹</title>
   
-  <!-- 引入 CSS -->
+  <!-- 引入 CSS（本地或 CDN 二选一） -->
   <link rel="stylesheet" href="css/footprintmap.css">
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/css/footprintmap.css"> -->
 </head>
 <body>
-  <!-- 地图容器 -->
-  <div id="footprintMap" style="width: 100%; height: 600px;"></div>
+  <!-- 地图容器（通过 data-json 指定数据源；amap-key 可选，也可走 localStorage） -->
+  <div class="footprint-map" data-json="data/footprints.json" style="width: 100%; height: 600px;"></div>
 
-  <!-- 引入高德地图 API -->
-  <script src="https://webapi.amap.com/maps?v=2.0&key=你的高德地图APIKey"></script>
-  
-  <!-- 引入足迹地图 JS -->
-  <script src="js/footprintmap.js"></script>
-  
-  <!-- 初始化地图 -->
+  <!-- 可选：写入本地存储的 Key（或在容器 data-amap-key 上直接写） -->
   <script>
-    const footprintMap = new FootprintMap({
-      container: 'footprintMap',
-      dataUrl: 'data/footprints.json'
-    });
+    localStorage.setItem('amapKey', '你的高德地图APIKey');
   </script>
+
+  <!-- 引入足迹地图 JS（本地或 CDN 二选一） | 组件会自动加载高德地图脚本 -->
+  <script defer src="js/footprintmap.js"></script>
+  <!-- <script defer src="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/js/footprintmap.js"></script> -->
 </body>
 </html>
 ```
@@ -149,7 +147,7 @@ git init
 git add .
 git commit -m "Add footprint map"
 git branch -M main
-git remote add origin https://github.com/Jiosanity/xiaoten-footprintmap.git
+git remote add origin https://github.com/Jiosanity/XiaoTen-FootprintMap.git
 git push -u origin main
 
 # 在 GitHub 仓库设置中启用 Pages
@@ -162,7 +160,7 @@ git push -u origin main
 **原因**：API Key 配置错误或域名未添加到白名单。
 
 **解决方法**：
-1. 检查配置文件中的 `amapKey` 是否正确
+1. 如果你使用 `data-amap-key`，确认值是否正确；或检查 `localStorage('amapKey')`
 2. 在高德控制台确认当前域名已添加到 Key 的白名单
 3. 打开浏览器开发者工具 Console 查看具体错误信息
 
@@ -171,7 +169,7 @@ git push -u origin main
 **原因**：数据文件路径错误或 JSON 格式错误。
 
 **解决方法**：
-1. 确认 `static/data/footprints.json` 文件存在
+1. 确认数据文件存在且路径与 `data-json` 一致
 2. 使用 [JSON 校验工具](https://jsonlint.com/) 检查 JSON 格式
 3. 确认 `coordinates` 格式为 `"经度,纬度"`（注意顺序）
 
@@ -180,8 +178,8 @@ git push -u origin main
 **原因**：图片路径错误。
 
 **解决方法**：
-1. 确认图片已放置在 `static/images/` 目录
-2. JSON 中的路径应为 `/images/xxx.jpg`（以 `/` 开头）
+1. 确认图片路径正确且可访问（相对/绝对路径均可）
+2. JSON 中的路径建议以站点根或相对数据文件的路径为准
 3. 检查图片文件名是否正确（注意大小写）
 
 ### 黑暗模式样式异常
@@ -189,7 +187,7 @@ git push -u origin main
 **原因**：CSS 文件未正确加载。
 
 **解决方法**：
-1. 确认 `footprintmap.css` 已复制到 `static/css/` 目录
+1. 确认 `footprintmap.css` 已正确引入（本地或 CDN）
 2. 检查主题是否使用 `.dark` 类名标识黑暗模式
 3. 如果主题使用其他类名，请参考 [自定义样式文档](customization.md)
 
@@ -201,4 +199,4 @@ git push -u origin main
 
 ---
 
-**需要帮助？** 请在 [GitHub Issues](https://github.com/Jiosanity/xiaoten-footprintmap/issues) 提出问题。
+**需要帮助？** 请在 [GitHub Issues](https://github.com/Jiosanity/XiaoTen-FootprintMap/issues) 提出问题。

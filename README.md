@@ -1,13 +1,13 @@
-# xiaoten-footprintmap
+# XiaoTen-FootprintMap（小十足迹地图）
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![AMap](https://img.shields.io/badge/AMap-2.0-06beb6)](https://lbs.amap.com/)
-[![Website](https://img.shields.io/website?url=https%3A%2F%2Fjiosanity.github.io%2Fxiaoten-footprintmap%2F)](https://jiosanity.github.io/xiaoten-footprintmap/)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fjiosanity.github.io%2FXiaoTen-FootprintMap%2F)](https://jiosanity.github.io/XiaoTen-FootprintMap/)
 
 一个基于高德地图的纯前端足迹地图组件，支持标记集群、分类筛选、照片轮播等功能。
 
-简体中文 | [在线演示](https://Jiosanity.github.io/xiaoten-footprintmap/)
+简体中文 | [在线演示](https://Jiosanity.github.io/XiaoTen-FootprintMap/)
 
 ## ✨ 特性
 
@@ -23,15 +23,19 @@
 
 ## 📸 演示
 
-在线演示：[https://Jiosanity.github.io/xiaoten-footprintmap/](https://Jiosanity.github.io/xiaoten-footprintmap/)
+在线演示：
+
+[https://Jiosanity.github.io/XiaoTen-FootprintMap/](https://Jiosanity.github.io/XiaoTen-FootprintMap/)
+
+[关于-小十的个人博客](https://www.xiaoten.com/pages/about/)
 
 提示：演示页右上角“🔑 API Key”按钮可快速填写并保存你的高德 Key，页面会自动使用此 Key 加载地图。
 
 ## 🚀 快速开始
 
-### 1. 引入文件
+### 1. 引入文件（自动引导，无需写初始化代码）
 
-在 HTML 页面中引入必要的文件：
+在 HTML 页面中引入 CSS/JS，并放置一个容器元素。组件会自动扫描类名为 `.footprint-map` 的元素并初始化。
 
 ```html
 <!DOCTYPE html>
@@ -39,27 +43,41 @@
 <head>
   <meta charset="UTF-8">
   <title>我的足迹地图</title>
-  
-  <!-- 引入 CSS -->
+  <!-- 引入 CSS（本地或 CDN，二选一） -->
   <link rel="stylesheet" href="css/footprintmap.css">
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/css/footprintmap.css"> -->
+  <style>
+    .footprint-map { width: 100%; height: 600px; }
+  </style>
+  <script>
+    // 可选：在运行时写入本地存储中的 Key（也可直接在容器 data-amap-key 上写）
+    localStorage.setItem('amapKey', '你的高德地图APIKey');
+  </script>
+  <!-- 引入 JS（本地或 CDN，二选一） -->
+  <script defer src="js/footprintmap.js"></script>
+  <!-- <script defer src="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/js/footprintmap.js"></script> -->
+  <!-- 无需单独引入高德地图脚本，组件会按需加载 -->
+  <!-- 无需手写 new FootprintMap(...)，组件会自动初始化 -->
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <link rel="icon" href="data:,">
+  <link rel="preconnect" href="https://webapi.amap.com">
+  <link rel="dns-prefetch" href="https://webapi.amap.com">
+  <link rel="dns-prefetch" href="https://a.amap.com">
+  <link rel="dns-prefetch" href="https://vdata.amap.com">
+  <link rel="dns-prefetch" href="https://restapi.amap.com">
+  <link rel="dns-prefetch" href="https://lbs.amap.com">
+  <link rel="dns-prefetch" href="https://webapi.amap.com">
+  <link rel="dns-prefetch" href="https://jiosanity.github.io">
+  <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://fastly.jsdelivr.net">
+  <link rel="dns-prefetch" href="https://gcore.jsdelivr.net">
 </head>
 <body>
-  <!-- 地图容器 -->
-  <div id="footprintMap" style="width: 100%; height: 600px;"></div>
-
-  <!-- 引入高德地图 API -->
-  <script src="https://webapi.amap.com/maps?v=2.0&key=你的APIKey"></script>
-  
-  <!-- 引入足迹地图 JS -->
-  <script src="js/footprintmap.js"></script>
-  
-  <!-- 初始化地图 -->
-  <script>
-    new FootprintMap({
-      container: 'footprintMap',
-      dataUrl: 'data/footprints.json'
-    });
-  </script>
+  <!-- 地图容器：至少提供数据源地址 data-json；amap-key 可选（也可走 localStorage） -->
+  <div class="footprint-map"
+       data-json="data/footprints.json"
+       data-amap-key="可选：直接写你的Key"></div>
 </body>
 </html>
 ```
@@ -89,7 +107,7 @@
 
 ### 4. 完成！
 
-打开 HTML 文件即可看到效果。详细文档请查看 [安装指南](docs/installation.md)。
+直接打开 HTML 文件或通过本地服务器访问即可看到地图。详细文档请查看 [安装指南](docs/installation.md)。
 
 ## 📖 文档
 
@@ -111,19 +129,13 @@
 
 也可以使用自定义颜色：`"markerColor": "#ff6b6b"` 或 `"markerColor": "rgb(255,107,107)"`
 
-## 🔧 配置选项
+## 🔧 使用要点
 
-```javascript
-new FootprintMap({
-  container: 'footprintMap',           // 地图容器 ID（必需）
-  dataUrl: 'data/footprints.json',     // 数据文件路径（必需）
-  height: '600px',                     // 地图高度（可选）
-  zoom: 5,                             // 初始缩放级别（可选）
-  center: [104.1954, 35.8617]          // 初始中心点（可选）
-});
-```
-
-完整参数说明请查看 [API 文档](docs/api.md)。
+- 容器：使用类名 `footprint-map` 的元素作为地图容器，建议通过 CSS 设定高度。
+- 数据：通过 `data-json` 指定 JSON 数据地址。
+- Key：通过 `data-amap-key` 或 `localStorage('amapKey')` 提供高德 Key。
+- 初始化：无需手写 JS 初始化，组件会在 DOMContentLoaded 后自动扫描并挂载。
+- 主题：当页面根节点存在 `.dark` 类时自动切换为暗色地图样式。
 
 ## 🛠️ 技术栈
 
@@ -165,7 +177,7 @@ new FootprintMap({
 
 - 作者：xiaoten
 - 网站：[xiaoten.com](https://www.xiaoten.com/)
-- Issue：[GitHub Issues](https://github.com/Jiosanity/xiaoten-footprintmap/issues)
+- Issue：[GitHub Issues](https://github.com/Jiosanity/XiaoTen-FootprintMap/issues)
 
 ---
 
