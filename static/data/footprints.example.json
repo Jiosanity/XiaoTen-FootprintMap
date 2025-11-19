@@ -90,5 +90,62 @@
       "categories": ["2024", "出差", "城市"],
       "markerColor": "citrus"
     }
+    ,
+    {
+      "name": "广州",
+      "coordinates": "113.2644,23.1291",
+      "description": "岭南文化的代表城市，美食与传统并存。",
+      "date": "2024-11-02",
+      "url": "",
+      "urlLabel": "",
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg"
+      ],
+      "categories": ["2024", "旅行", "美食"],
+      "markerColor": "forest"
+    },
+    {
+      "name": "南京",
+      "coordinates": "118.7969,32.0603",
+      "description": "六朝古都，秦淮河与明孝陵是重要景点。",
+      "date": "2024-09-18",
+      "url": "",
+      "urlLabel": "",
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg"
+      ],
+      "categories": ["2024", "历史", "旅行"],
+      "markerColor": "violet"
+    },
+    {
+      "name": "桂林",
+      "coordinates": "110.2900,25.2736",
+      "description": "山水甲天下，漓江风光吸引众多游客。",
+      "date": "2024-08-25",
+      "url": "",
+      "urlLabel": "",
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg"
+      ],
+      "categories": ["2024", "自然", "旅行"],
+      "markerColor": "amber"
+    },
+    {
+      "name": "青岛",
+      "coordinates": "120.3826,36.0671",
+      "description": "海滨城市，以啤酒和欧陆风情著称。",
+      "date": "2024-10-05",
+      "url": "",
+      "urlLabel": "",
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg"
+      ],
+      "categories": ["2024", "海滨", "旅行"],
+      "markerColor": "ocean"
+    }
   ]
 }

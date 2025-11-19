@@ -164,14 +164,15 @@
     }
     
     .code-block {
-      background: #1f2937;
-      color: #f9fafb;
+      background: #f3f4f6; /* match light highlight theme */
+      color: #0f172a;
       padding: 20px;
       border-radius: 8px;
       overflow-x: auto;
       font-family: "Monaco", "Courier New", monospace;
       font-size: 0.9em;
       line-height: 1.6;
+      border: 1px solid #e5e7eb;
     }
     
     .footer {
@@ -277,7 +278,6 @@
 <body>
   <!-- 演示工具条 -->
   <div class="demo-toolbar">
-    <button id="toggleThemeBtn" title="切换亮/暗色">🌓 主题</button>
     <a href="#" class="tip" id="apiTipBtn" title="查看 API Key 填写提示">🔑 API Key</a>
     <a href="editor.html" class="tip" title="数据构建器">✏️ 编辑器</a>
   </div>
@@ -333,6 +333,9 @@
     <div class="section">
       <h2>🗺️ 在线演示</h2>
       <p style="color: #6b7280; margin-bottom: 20px;">点击地图上的标记查看详情，使用顶部按钮筛选分类，底部中间切换集群显示。想创建自己的足迹？试试 <a href="editor.html" style="color: #667eea; text-decoration: none; font-weight: 600;">数据编辑器 →</a></p>
+      <div style="display:flex; justify-content:flex-end; margin-bottom:8px;">
+        <button id="toggleThemeBtn" title="切换演示地图主题" style="appearance:none; border:1px solid rgba(0,0,0,0.1); background:#fff; color:#111827; padding:8px 12px; border-radius:8px; cursor:pointer; font-size:14px; box-shadow:0 2px 6px rgba(0,0,0,0.08);">🌓 地图主题</button>
+      </div>
       <div id="footprintMap" class="footprint-map" data-json="static/data/footprints.example.json" data-amap-key="4727334ebc13608dbe9ba75266c3d41a" style="border-radius:6px; overflow:hidden;"></div>
     </div>
 
@@ -340,11 +343,11 @@
       <h2>📊 统计数据</h2>
       <div class="stats">
         <div class="stat-card">
-          <div class="number">6</div>
+          <div class="number">10</div>
           <div class="label">城市</div>
         </div>
         <div class="stat-card">
-          <div class="number">475</div>
+          <div class="number">485</div>
           <div class="label">行代码</div>
         </div>
         <div class="stat-card">
