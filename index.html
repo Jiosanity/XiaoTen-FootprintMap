@@ -8,6 +8,8 @@
   
   <!-- 引入 CSS -->
   <link rel="stylesheet" href="static/css/footprintmap.css">
+  <!-- 代码高亮样式（Highlight.js） -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
   
   <style>
     * {
@@ -110,12 +112,7 @@
       font-size: 0.95em;
     }
     
-    .map-container {
-      margin: 30px 0;
-      border-radius: 12px;
-      overflow: hidden;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
+    /* .map-container wrapper removed to avoid extra white padding/shadow */
     
     #footprintMap {
       width: 100%;
@@ -336,9 +333,7 @@
     <div class="section">
       <h2>🗺️ 在线演示</h2>
       <p style="color: #6b7280; margin-bottom: 20px;">点击地图上的标记查看详情，使用顶部按钮筛选分类，底部中间切换集群显示。想创建自己的足迹？试试 <a href="editor.html" style="color: #667eea; text-decoration: none; font-weight: 600;">数据编辑器 →</a></p>
-      <div class="map-container">
-        <div id="footprintMap" class="footprint-map" data-json="static/data/footprints.example.json" data-amap-key="4727334ebc13608dbe9ba75266c3d41a"></div>
-      </div>
+      <div id="footprintMap" class="footprint-map" data-json="static/data/footprints.example.json" data-amap-key="4727334ebc13608dbe9ba75266c3d41a" style="border-radius:6px; overflow:hidden;"></div>
     </div>
 
     <div class="section">
@@ -368,21 +363,21 @@
       <p style="color: #6b7280; margin-bottom: 20px;">仅需三步即可在你的网站中使用</p>
       
       <h3 style="margin-top: 30px; margin-bottom: 15px; color: #374151;">1️⃣ 引入文件</h3>
-      <pre class="code-block"><code>&lt;!-- 引入 CSS --&gt;
-&lt;link rel="stylesheet" href="css/footprintmap.css"&gt;
+      <pre class="code-block"><code class="language-html">&lt;!-- 引入 CSS --&gt;
+    &lt;link rel="stylesheet" href="css/footprintmap.css"&gt;
 
-&lt;!-- 地图容器 --&gt;
-&lt;div id="footprintMap" style="height: 600px;"&gt;&lt;/div&gt;
+    &lt;!-- 地图容器 --&gt;
+    &lt;div id="footprintMap" style="height: 600px;"&gt;&lt;/div&gt;
 
-&lt;!-- 引入高德地图 API --&gt;
-&lt;script src="https://webapi.amap.com/maps?v=2.0&amp;key=你的APIKey"&gt;&lt;/script&gt;
+    &lt;!-- 引入高德地图 API --&gt;
+    &lt;script src="https://webapi.amap.com/maps?v=2.0&amp;key=你的APIKey"&gt;&lt;/script&gt;
 
-&lt;!-- 引入足迹地图 JS --&gt;
-&lt;script src="js/footprintmap.js"&gt;&lt;/script&gt;
-</code></pre>
+    &lt;!-- 引入足迹地图 JS --&gt;
+    &lt;script src="js/footprintmap.js"&gt;&lt;/script&gt;
+    </code></pre>
 
       <h3 style="margin-top: 30px; margin-bottom: 15px; color: #374151;">2️⃣ 初始化地图</h3>
-      <pre class="code-block"><code>&lt;script&gt;
+      <pre class="code-block"><code class="language-javascript">&lt;script&gt;
   const footprintMap = new FootprintMap({
     container: 'footprintMap',
     dataUrl: 'data/footprints.json',
@@ -392,7 +387,7 @@
 </code></pre>
 
       <h3 style="margin-top: 30px; margin-bottom: 15px; color: #374151;">3️⃣ 准备数据</h3>
-      <pre class="code-block"><code>{
+      <pre class="code-block"><code class="language-json">{
 
   "locations": [
     {
@@ -449,7 +444,7 @@
   </div>
 
   <div class="footer">
-    <p>Made with ❤️ by <a href="https://www.xiaoten.com" target="_blank">xiaoten</a></p>
+    <p>Made with ❤️ by <a href="https://www.xiaoten.com" target="_blank">XiaoTen</a></p>
     <p style="margin-top: 10px;">
       <a href="https://github.com/Jiosanity/XiaoTen-FootprintMap" target="_blank">GitHub</a> · 
       <a href="https://github.com/Jiosanity/XiaoTen-FootprintMap/blob/main/LICENSE" target ="_blank">MIT License</a> · 
@@ -461,6 +456,9 @@
   <script src="static/js/footprintmap.js?v=20251119c"></script>
   <script src="static/js/theme.js"></script>
   <script src="static/js/utils.js"></script>
+  <!-- Highlight.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+  <script>document.addEventListener('DOMContentLoaded', ()=>{ if(window.hljs && typeof hljs.highlightAll==='function') hljs.highlightAll(); });</script>
   
   <!-- 初始化地图 -->
   <script>
