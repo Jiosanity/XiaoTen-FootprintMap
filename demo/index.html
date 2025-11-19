@@ -265,7 +265,7 @@
       <h2>🗺️ 在线演示</h2>
       <p style="color: #6b7280; margin-bottom: 20px;">点击地图上的标记查看详情，使用顶部按钮筛选分类，右上角切换集群模式</p>
       <div class="map-container">
-        <div id="footprintMap"></div>
+        <div id="footprintMap" class="footprint-map" data-json="../static/data/footprints.example.json"></div>
       </div>
     </div>
 
@@ -352,14 +352,12 @@
   
   <!-- 初始化地图 -->
   <script>
-    // 若本地存储存在 amapKey，则作为初始化参数传入，由组件自行加载 AMap 脚本
+    // 若本地存储存在 amapKey，则写入容器的 data-amap-key 属性，组件会自动加载地图
     const savedKey = localStorage.getItem('amapKey') || '';
-    const initOptions = {
-      container: 'footprintMap',
-      dataUrl: '../static/data/footprints.example.json'
-    };
-    if (savedKey) initOptions.amapKey = savedKey;
-    const footprintMap = new FootprintMap(initOptions);
+    if (savedKey) {
+      const el = document.getElementById('footprintMap');
+      if (el) el.setAttribute('data-amap-key', savedKey);
+    }
 
     // 主题切换与 API Key 提示
     const toggleBtn = document.getElementById('toggleThemeBtn');
