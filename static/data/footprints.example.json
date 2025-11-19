@@ -5,9 +5,13 @@
       "coordinates": "116.4074,39.9042",
       "description": "中国的首都，拥有丰富的历史文化遗产和现代化的都市风貌。",
       "date": "2024-05-01",
-      "url": "",
-      "urlLabel": "",
-      "photos": [],
+      "url": "https://www.xiaoten.com/posts/2025/11/amap-powered-footprintmap-shortcode/",
+      "urlLabel": "相关博客文章",
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg"
+      ],
       "categories": ["2024", "旅行", "城市"],
       "markerColor": "sunset"
     },
@@ -16,9 +20,13 @@
       "coordinates": "121.4737,31.2304",
       "description": "国际化大都市，东方明珠塔、外滩等标志性建筑令人印象深刻。",
       "date": "2024-06-15",
-      "url": "",
-      "urlLabel": "",
-      "photos": [],
+      "url": "https://www.xiaoten.com/posts/2025/11/amap-powered-footprintmap-shortcode/",
+      "urlLabel": "游记：足迹地图短代码",
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg"
+      ],
       "categories": ["2024", "旅行", "城市"],
       "markerColor": "ocean"
     },
@@ -27,9 +35,13 @@
       "coordinates": "120.1551,30.2741",
       "description": "人间天堂，西湖美景让人流连忘返。",
       "date": "2024-07-20",
-      "url": "",
+      "url": "https://www.xiaoten.com/posts/2025/11/amap-powered-footprintmap-shortcode/",
       "urlLabel": "阅读杭州游记",
-      "photos": [],
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg"
+      ],
       "categories": ["2024", "旅行", "自然"],
       "markerColor": "forest"
     },
@@ -40,7 +52,11 @@
       "date": "2024-08-10",
       "url": "",
       "urlLabel": "",
-      "photos": [],
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg"
+      ],
       "categories": ["2024", "旅行", "美食"],
       "markerColor": "amber"
     },
@@ -51,7 +67,11 @@
       "date": "2024-09-05",
       "url": "",
       "urlLabel": "",
-      "photos": [],
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg"
+      ],
       "categories": ["2024", "旅行", "历史"],
       "markerColor": "violet"
     },
@@ -62,7 +82,11 @@
       "date": "2024-10-12",
       "url": "",
       "urlLabel": "",
-      "photos": [],
+      "photos": [
+        "https://s21.ax1x.com/2025/06/01/pV95p79.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV94OpV.jpg",
+        "https://s21.ax1x.com/2025/06/01/pV95CkR.jpg"
+      ],
       "categories": ["2024", "出差", "城市"],
       "markerColor": "citrus"
     }
