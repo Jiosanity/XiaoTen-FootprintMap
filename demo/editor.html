@@ -37,6 +37,15 @@
     .split { display:flex; flex-direction:column; gap:12px; }
     .import-block { border:1px dashed #94a3b8; padding:10px; border-radius:8px; background:#f8fafc; }
     .small { font-size:11px; color:#64748b; }
+    .marker-color-palette { display:flex; flex-wrap:wrap; gap:6px; }
+    .marker-color-swatch { width:30px; height:30px; border-radius:50%; cursor:pointer; position:relative; box-shadow:0 1px 3px rgba(0,0,0,.25); border:2px solid #fff; outline:none; }
+    .marker-color-swatch[data-selected="1"] { box-shadow:0 0 0 3px #6366f1, 0 2px 6px rgba(0,0,0,.3); }
+    .marker-color-swatch[data-none="1"] { background:#e2e8f0; display:flex; align-items:center; justify-content:center; font-size:11px; color:#475569; font-weight:600; }
+    .tags-options { display:flex; flex-wrap:wrap; gap:6px; }
+    .tag-option { padding:4px 8px; background:#e2e8f0; color:#334155; font-size:12px; border-radius:14px; cursor:pointer; user-select:none; line-height:16px; display:flex; align-items:center; gap:4px; }
+    .tag-option[data-selected="1"] { background:#6366f1; color:#fff; }
+    .tag-option button { background:none; border:none; color:inherit; cursor:pointer; font-size:12px; padding:0 2px; }
+    @media (max-width:640px){ .marker-color-swatch{ width:26px; height:26px; } }
     @media (max-width:900px){ main{ flex-direction:column;} }
   </style>
 </head>
@@ -68,22 +77,19 @@
             <input type="text" id="coordinates" required placeholder="116.4074,39.9042" aria-required="true" />
           </div>
         </div>
-        <div class="inline">
-          <div class="group">
-            <label>分类（英文逗号分隔）</label>
-            <input type="text" id="categories" placeholder="2024,旅行,城市" />
+        <div class="group">
+          <label>标记颜色（可选，未选则自动轮换）</label>
+          <div id="markerColorPalette" class="marker-color-palette" role="radiogroup" aria-label="选择标记颜色"></div>
+          <input type="hidden" id="markerColor" value="" />
+        </div>
+        <div class="group">
+          <label>分类（多选，默认：常驻 / 旅行 / 游记）</label>
+          <div id="categoryOptions" class="tags-options" aria-label="分类多选"></div>
+          <div style="display:flex; gap:8px; margin-top:6px;">
+            <input type="text" id="newCategoryInput" placeholder="输入后回车或点击添加" style="flex:1;" />
+            <button type="button" class="secondary" id="addCategoryBtn">添加分类</button>
           </div>
-          <div class="group">
-            <label>标记颜色（可选，默认自动轮换）</label>
-            <select id="markerColor">
-              <option value="sunset">sunset</option>
-              <option value="ocean">ocean</option>
-              <option value="forest">forest</option>
-              <option value="amber">amber</option>
-              <option value="violet">violet</option>
-              <option value="citrus">citrus</option>
-            </select>
-          </div>
+          <div class="small">点击标签切换选中，自定义分类可添加后再点亮。</div>
         </div>
         <div class="group">
           <label>图片 URL（输入后回车或点击添加）</label>
@@ -110,6 +116,10 @@
         <p class="small">必填项：名称、坐标。其他字段可选但推荐填写描述/日期以丰富信息。</p>
       </form>
       <h2 style="margin-top:26px;">🗺️ 坐标拾取</h2>
+      <div style="display:flex; gap:8px; margin-bottom:8px;">
+        <input type="text" id="placeSearchInput" placeholder="搜索地点以定位拾取，如：杭州西湖" style="flex:1;" />
+        <button type="button" class="secondary" id="placeSearchBtn">搜索</button>
+      </div>
       <div id="map"></div>
       <p class="small">点击地图即可写入经纬度（格式：lng,lat）。</p>
     </section>
@@ -132,6 +142,8 @@
         <button type="button" class="secondary" id="copyBtn">复制到剪贴板</button>
         <button type="button" class="secondary" id="downloadBtn">下载文件</button>
         <button type="button" class="secondary" id="toggleAutoPreviewBtn" data-on="1">关闭实时预览</button>
+        <button type="button" class="secondary" id="toggleSortDateBtn" data-on="0">开启按日期排序</button>
+        <button type="button" class="secondary" id="togglePruneEmptyBtn" data-on="1">剔除空字段: 开</button>
       </div>
       <pre id="jsonOutput" aria-label="输出 JSON"></pre>
       <h2 style="margin-top:24px;">🔍 实时预览</h2>
@@ -158,6 +170,11 @@
     let editingIndex = null; // 若不为 null 则表示当前为编辑模式
     let autoPreview = true;
     let previewMapInstance = null;
+    let sortByDate = false;
+    let pruneEmpty = true;
+    const defaultCategories = ['常驻','旅行','游记'];
+    let selectedCategories = new Set();
+    let selectedMarkerColor = '';
     const markerGradients = {
       sunset: 'linear-gradient(135deg, #ffb347, #ff6f61)',
       ocean: 'linear-gradient(135deg, #06beb6, #48b1bf)',
@@ -253,6 +270,43 @@
       });
     }
 
+    // 分类与颜色渲染
+    function renderCategoryOptions(){
+      const wrap = document.getElementById('categoryOptions');
+      if(!wrap) return;
+      wrap.innerHTML='';
+      const all = Array.from(new Set([...defaultCategories, ...selectedCategories]));
+      all.forEach(cat=>{
+        const div = document.createElement('div');
+        div.className='tag-option';
+        div.textContent = cat;
+        div.setAttribute('role','checkbox');
+        div.dataset.val = cat;
+        if(selectedCategories.has(cat)) { div.dataset.selected='1'; div.setAttribute('aria-checked','true'); }
+        else div.setAttribute('aria-checked','false');
+        div.onclick=()=>{ if(selectedCategories.has(cat)) selectedCategories.delete(cat); else selectedCategories.add(cat); renderCategoryOptions(); };
+        if(!defaultCategories.includes(cat)){
+          const delBtn = document.createElement('button'); delBtn.type='button'; delBtn.title='删除标签'; delBtn.textContent='×'; delBtn.onclick=(e)=>{ e.stopPropagation(); selectedCategories.delete(cat); renderCategoryOptions(); };
+          div.appendChild(delBtn);
+        }
+        wrap.appendChild(div);
+      });
+    }
+    function addCategoryFromInput(){ const inp = document.getElementById('newCategoryInput'); if(!inp) return; const v = inp.value.trim(); if(!v) return; selectedCategories.add(v); inp.value=''; renderCategoryOptions(); }
+    document.getElementById('addCategoryBtn').onclick=()=> addCategoryFromInput();
+    document.getElementById('newCategoryInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); addCategoryFromInput(); } });
+    function getSelectedCategories(){ return Array.from(selectedCategories); }
+    function initMarkerColorPalette(){
+      const palette = document.getElementById('markerColorPalette'); if(!palette) return;
+      const presets = Object.keys(markerGradients);
+      palette.innerHTML='';
+      const none = document.createElement('div'); none.className='marker-color-swatch'; none.dataset.none='1'; none.title='自动'; none.tabIndex=0; none.textContent='A'; none.onclick=()=>{ selectedMarkerColor=''; document.getElementById('markerColor').value=''; updateMarkerSelection(); };
+      palette.appendChild(none);
+      presets.forEach(p=>{ const s=document.createElement('div'); s.className='marker-color-swatch'; s.style.background=markerGradients[p]; s.title=p; s.tabIndex=0; s.dataset.val=p; s.onclick=()=>{ selectedMarkerColor=p; document.getElementById('markerColor').value=p; updateMarkerSelection(); }; palette.appendChild(s); });
+      updateMarkerSelection();
+    }
+    function updateMarkerSelection(){ document.querySelectorAll('.marker-color-swatch').forEach(el=>{ if(el.dataset.none==='1'){ el.dataset.selected = selectedMarkerColor==='' ? '1':'0'; } else { el.dataset.selected = el.dataset.val===selectedMarkerColor ? '1':'0'; } }); }
+
     // 添加地点
     form.addEventListener('submit', e=>{
       e.preventDefault();
@@ -261,10 +315,9 @@
       const date = document.getElementById('date').value.trim();
       const coordinates = document.getElementById('coordinates').value.trim();
       const markerColor = document.getElementById('markerColor').value.trim();
-      const categoriesRaw = document.getElementById('categories').value.trim();
+      const categories = getSelectedCategories();
       const url = document.getElementById('url').value.trim();
       const urlLabel = document.getElementById('urlLabel').value.trim();
-      const categories = categoriesRaw ? categoriesRaw.split(',').map(s=>s.trim()).filter(Boolean) : [];
       const draftObj = { name, coordinates, description, date, url, urlLabel, photos:[...photosTemp], categories, markerColor };
       const errs = collectErrors(draftObj);
       showErrors(errs);
@@ -276,7 +329,7 @@
       } else {
         locations.push(draftObj);
       }
-      photosTemp=[]; renderPhotosTemp(); form.reset(); renderLocations(); persistDraft(); triggerAutoPreview(); jsonOutput.textContent='';
+      photosTemp=[]; renderPhotosTemp(); form.reset(); renderLocations(); persistDraft(); triggerAutoPreview(); jsonOutput.textContent=''; selectedMarkerColor=''; document.getElementById('markerColor').value=''; selectedCategories=new Set(); renderCategoryOptions(); updateMarkerSelection();
     });
 
     document.getElementById('resetFormBtn').onclick=()=>{ form.reset(); photosTemp=[]; renderPhotosTemp(); };
@@ -303,8 +356,8 @@
           document.getElementById('description').value = loc.description;
           document.getElementById('date').value = loc.date && /\d{4}-\d{2}-\d{2}/.test(loc.date) ? loc.date : '';
           document.getElementById('coordinates').value = loc.coordinates;
-          document.getElementById('categories').value = (loc.categories||[]).join(',');
-          document.getElementById('markerColor').value = loc.markerColor || 'sunset';
+          selectedCategories = new Set(loc.categories||[]); renderCategoryOptions();
+          selectedMarkerColor = loc.markerColor || ''; document.getElementById('markerColor').value = selectedMarkerColor; updateMarkerSelection();
           document.getElementById('url').value = loc.url || '';
           document.getElementById('urlLabel').value = loc.urlLabel || '';
           photosTemp = [...(loc.photos||[])]; renderPhotosTemp();
@@ -329,7 +382,31 @@
 
     // 生成 JSON
     function generateJson(){
-      const obj = { locations };
+      let exportLocations = locations.map(l=> ({ ...l }));
+      if(sortByDate){
+        exportLocations.sort((a,b)=>{
+          const da = Date.parse(a.date||'');
+          const db = Date.parse(b.date||'');
+          if(isNaN(da) && isNaN(db)) return 0;
+          if(isNaN(da)) return 1;
+          if(isNaN(db)) return -1;
+          return db - da;
+        });
+      }
+      if(pruneEmpty){
+        exportLocations = exportLocations.map(obj=>{
+          const cleaned = { name: obj.name, coordinates: obj.coordinates };
+          ['description','date','url','urlLabel','photos','categories','markerColor'].forEach(k=>{
+            const v = obj[k];
+            if(v===undefined || v===null) return;
+            if(typeof v==='string' && v.trim()==='') return;
+            if(Array.isArray(v) && v.length===0) return;
+            cleaned[k]=v;
+          });
+          return cleaned;
+        });
+      }
+      const obj = { locations: exportLocations };
       const text = JSON.stringify(obj, null, 2);
       jsonOutput.textContent = text;
     }
@@ -347,6 +424,8 @@
       toggleAutoPreviewBtn.dataset.on = autoPreview ? '1':'0';
       if(autoPreview){ triggerAutoPreview(); } else { /* 保留当前 */ }
     };
+    document.getElementById('toggleSortDateBtn').onclick=()=>{ sortByDate = !sortByDate; document.getElementById('toggleSortDateBtn').textContent = sortByDate ? '关闭按日期排序' : '开启按日期排序'; triggerAutoPreview(); };
+    document.getElementById('togglePruneEmptyBtn').onclick=()=>{ pruneEmpty = !pruneEmpty; document.getElementById('togglePruneEmptyBtn').textContent = '剔除空字段: ' + (pruneEmpty ? '开':'关'); triggerAutoPreview(); };
     // 批量删除按钮逻辑
     const deleteSelectedBtn = document.createElement('button');
     deleteSelectedBtn.type='button'; deleteSelectedBtn.className='danger'; deleteSelectedBtn.textContent='批量删除选中';
@@ -378,6 +457,21 @@
     // 地图初始化与点击拾取
     const map = new AMap.Map('map',{ viewMode:'2D', zoom:4, center:[105,36] });
     map.on('click', function(ev){ if(ev && ev.lnglat){ const { lng, lat } = ev.lnglat; document.getElementById('coordinates').value = lng.toFixed(6)+','+lat.toFixed(6); } });
+    // 地点搜索
+    let placeSearch = null;
+    AMap.plugin('AMap.PlaceSearch', ()=>{ placeSearch = new AMap.PlaceSearch({ pageSize:5, pageIndex:1 }); });
+    document.getElementById('placeSearchBtn').onclick=()=> doPlaceSearch();
+    document.getElementById('placeSearchInput').addEventListener('keydown', e=>{ if(e.key==='Enter'){ e.preventDefault(); doPlaceSearch(); } });
+    function doPlaceSearch(){
+      const kw = document.getElementById('placeSearchInput').value.trim(); if(!kw) return;
+      if(!placeSearch){ alert('搜索服务尚未就绪'); return; }
+      placeSearch.search(kw, (status, result)=>{
+        if(status==='complete' && result.info==='OK' && result.poiList.pois.length){
+          const poi = result.poiList.pois[0];
+          if(poi.location){ const lng = poi.location.lng; const lat = poi.location.lat; map.setZoomAndCenter(12, [lng, lat]); document.getElementById('coordinates').value = lng.toFixed(6)+','+lat.toFixed(6); }
+        } else { alert('未找到相关地点'); }
+      });
+    }
 
     // 预览地图渲染
     function renderPreviewMap(){
@@ -418,8 +512,10 @@
 
     // 样式：为 invalid 类添加高亮（插入 style 动态确保覆盖）
     const styleEl = document.createElement('style');
-    styleEl.textContent = '.invalid{border-color:#dc2626 !important; background:#fef2f2 !important;}@media(max-width:640px){#map,#previewMap{height:240px !important;} .location-item{font-size:12px;}}';
+    styleEl.textContent = '.invalid{border-color:#dc2626 !important; background:#fef2f2 !important;}@media(max-width:640px){#map,#previewMap{height:240px !important;} .location-item{font-size:12px;} .marker-color-palette{gap:4px;} .tags-options{gap:4px;} }';
     document.head.appendChild(styleEl);
+    // 初始化分类与颜色控件
+    initMarkerColorPalette(); renderCategoryOptions();
   </script>
 </body>
 </html>
