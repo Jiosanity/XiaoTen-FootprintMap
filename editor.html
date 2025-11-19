@@ -757,7 +757,8 @@
     let placeSearch = null;
     AMap.plugin('AMap.PlaceSearch', ()=>{ 
       placeSearch = new AMap.PlaceSearch({ 
-        extensions: 'base'
+        pageSize: 10,
+        pageIndex: 1
       }); 
     });
     document.getElementById('placeSearchBtn').onclick=()=> doPlaceSearch();
@@ -765,10 +766,15 @@
     function doPlaceSearch(){
       const kw = document.getElementById('placeSearchInput').value.trim(); 
       if(!kw) return;
-      if(!placeSearch){ alert('搜索服务尚未就绪'); return; }
+      if(!placeSearch){ 
+        alert('搜索服务尚未就绪，请稍后再试'); 
+        return; 
+      }
       placeSearch.search(kw, (status, result)=>{
-        if(status==='complete' && result && result.poiList && result.poiList.pois && result.poiList.pois.length > 0){
+        console.log('搜索状态:', status, '结果:', result);
+        if(status === 'complete' && result.poiList && result.poiList.pois && result.poiList.pois.length > 0){
           const poi = result.poiList.pois[0];
+          console.log('找到地点:', poi);
           if(poi.location){ 
             const lng = poi.location.lng; 
             const lat = poi.location.lat; 
@@ -780,9 +786,16 @@
               position: [lng, lat],
               map: map
             });
+            alert('已定位到：' + poi.name);
+          } else {
+            alert('找到地点但无坐标信息，请尝试其他关键词');
           }
-        } else { 
-          alert('未找到相关地点，请尝试更具体的关键词（如：北京天安门、杭州西湖）'); 
+        } else if(status === 'no_data') {
+          alert('未找到"' + kw + '"，请尝试更具体的关键词（如：杭州西湖风景区、北京天安门广场）'); 
+        } else if(status === 'error') {
+          alert('搜索出错，请检查网络或稍后重试');
+        } else {
+          alert('未找到相关地点，请尝试更具体的关键词'); 
         }
       });
     }
