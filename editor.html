@@ -305,9 +305,8 @@
 
       <h2 style="margin-top:6px;">🧾 导出 JSON</h2>
       <div class="controls">
-        <button type="button" id="generateBtn">生成 JSON</button>
+        <button type="button" id="generateBtn">下载 JSON</button>
         <button type="button" class="secondary" id="copyBtn">复制到剪贴板</button>
-        <button type="button" class="secondary" id="downloadBtn">下载文件</button>
         <button type="button" class="secondary" id="toggleSortDateBtn" data-on="0">开启按日期排序</button>
       </div>
       <pre id="jsonOutput" aria-label="输出 JSON" style="min-height:340px;"></pre>
@@ -831,14 +830,22 @@
       const text = JSON.stringify(obj, null, 2);
       jsonOutput.textContent = text;
     }
-    document.getElementById('generateBtn').onclick=()=>{ generateJson(); renderPreviewMap(); };
+    document.getElementById('generateBtn').onclick=()=>{
+      // 生成并直接下载 JSON
+      generateJson();
+      const text = jsonOutput.textContent || '';
+      if(!text){ alert('请先生成 JSON'); return; }
+      try{
+        const blob = new Blob([text], { type:'application/json' });
+        const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'footprints.generated.json'; a.click(); URL.revokeObjectURL(a.href);
+      }catch(e){ alert('下载失败: '+ (e && e.message? e.message : e)); }
+      // 同时刷新预览
+      renderPreviewMap();
+    };
     document.getElementById('copyBtn').onclick=()=>{
       if(!jsonOutput.textContent){ alert('请先生成 JSON'); return; }
-      navigator.clipboard.writeText(jsonOutput.textContent).then(()=> alert('已复制到剪贴板')); };
-    document.getElementById('downloadBtn').onclick=()=>{
-      if(!jsonOutput.textContent){ alert('请先生成 JSON'); return; }
-      const blob = new Blob([jsonOutput.textContent], { type:'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = 'footprints.generated.json'; a.click(); URL.revokeObjectURL(a.href); };
+      navigator.clipboard.writeText(jsonOutput.textContent).then(()=> alert('已复制到剪贴板'));
+    };
     document.getElementById('toggleSortDateBtn').onclick=()=>{ sortByDate = !sortByDate; document.getElementById('toggleSortDateBtn').textContent = sortByDate ? '关闭按日期排序' : '开启按日期排序'; generateJson(); };
     document.getElementById('refreshPreviewBtn').onclick=()=>{ renderPreviewMap(); };
     // 主题切换由 shared script 管理，按钮文本与 demo 保持一致
@@ -859,6 +866,26 @@
     const deleteBtnWrap = document.createElement('div');
     deleteBtnWrap.style.marginBottom = '18px';
     deleteBtnWrap.appendChild(deleteSelectedBtn);
+    // 添加“导入示例数据”按钮（在批量删除按钮之后）
+    const importSampleBtn = document.createElement('button');
+    importSampleBtn.type = 'button';
+    importSampleBtn.className = 'secondary';
+    importSampleBtn.style.marginLeft = '8px';
+    importSampleBtn.textContent = '导入示例数据';
+    importSampleBtn.title = '从 static/data/footprints.example.json 加载示例数据（将替换当前数据）';
+    importSampleBtn.onclick = async ()=>{
+      if(!confirm('将用示例数据替换当前已添加的地点，确定要继续吗？')) return;
+      try{
+        const res = await fetch('./static/data/footprints.example.json');
+        if(!res.ok) throw new Error('无法加载示例数据');
+        const data = await res.json();
+        if(!data || !Array.isArray(data.locations)) throw new Error('示例数据格式不正确');
+        locations = data.locations.filter(l=> l && l.name && l.coordinates).map(l=> ({ ...l, date: formatDateISO(l.date) || l.date }));
+        renderLocations(); renderPhotosTemp(); persistDraft(); generateJson(); renderPreviewMap();
+        alert('示例数据已加载');
+      }catch(err){ alert('加载示例数据失败：' + (err && err.message ? err.message : err)); }
+    };
+    deleteBtnWrap.appendChild(importSampleBtn);
     document.getElementById('locationList').insertAdjacentElement('beforebegin', deleteBtnWrap);
 
     // 添加图片按钮
@@ -895,28 +922,14 @@
       lsSet('footprintmap_builder_importAutoSort', importAutoSort.toString());
     });
 
-    // 初始渲染（若无草稿则尝试加载示例数据）
+    // 初始渲染（不再自动加载示例数据，初始状态保持为空）
     (function initialRender(){
       if(locations && locations.length>0){
         renderLocations(); renderPhotosTemp();
         return;
       }
-      // locations 为空时，尝试加载示例 JSON（静态文件）
-      try{
-        fetch('./static/data/footprints.example.json').then(res=>{ if(!res.ok) throw new Error('no sample'); return res.json(); }).then(data=>{
-          if(data && Array.isArray(data.locations) && data.locations.length){
-            locations = data.locations.filter(l=> l && l.name && l.coordinates).map(l=> ({ ...l, date: formatDateISO(l.date) || l.date }));
-            renderLocations(); renderPhotosTemp(); persistDraft();
-            // 生成 JSON 和尝试渲染预览（若位置存在）
-            generateJson(); renderPreviewMap();
-            return;
-          }
-          // 若样例不可用，仍然渲染空状态
-          renderLocations(); renderPhotosTemp();
-        }).catch(()=>{
-          renderLocations(); renderPhotosTemp();
-        });
-      }catch(e){ renderLocations(); renderPhotosTemp(); }
+      // 不自动加载示例：直接渲染空状态
+      renderLocations(); renderPhotosTemp();
     })();
 
     // 地图初始化与点击拾取
