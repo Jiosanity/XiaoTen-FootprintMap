@@ -51,21 +51,21 @@
       <form id="locationForm" autocomplete="off">
         <div id="formErrors" style="display:none; margin-bottom:12px; padding:8px 10px; border:1px solid #dc2626; background:#fef2f2; color:#b91c1c; border-radius:6px; font-size:12px;"></div>
         <div class="group">
-          <label>名称 *</label>
-          <input type="text" id="name" required placeholder="如：北京" />
+          <label>名称 *（必填）</label>
+          <input type="text" id="name" required placeholder="如：北京" aria-required="true" />
         </div>
         <div class="group">
-          <label>描述 *</label>
-          <textarea id="description" required placeholder="简要描述该地点"></textarea>
+          <label>描述（可选）</label>
+          <textarea id="description" placeholder="简要描述该地点"></textarea>
         </div>
         <div class="inline">
           <div class="group">
-            <label>日期 *</label>
-            <input type="date" id="date" required />
+            <label>日期（可选，YYYY-MM-DD）</label>
+            <input type="date" id="date" />
           </div>
           <div class="group">
-            <label>坐标 (点击地图自动填入) *</label>
-            <input type="text" id="coordinates" required placeholder="lng,lat" />
+            <label>坐标 *（经度,纬度；可点击地图拾取）</label>
+            <input type="text" id="coordinates" required placeholder="116.4074,39.9042" aria-required="true" />
           </div>
         </div>
         <div class="inline">
@@ -74,8 +74,8 @@
             <input type="text" id="categories" placeholder="2024,旅行,城市" />
           </div>
           <div class="group">
-            <label>标记颜色 *</label>
-            <select id="markerColor" required>
+            <label>标记颜色（可选，默认自动轮换）</label>
+            <select id="markerColor">
               <option value="sunset">sunset</option>
               <option value="ocean">ocean</option>
               <option value="forest">forest</option>
@@ -87,7 +87,10 @@
         </div>
         <div class="group">
           <label>图片 URL（输入后回车或点击添加）</label>
-          <input type="text" id="photoInput" placeholder="https://...jpg" />
+          <div style="display:flex; gap:8px;">
+            <input type="text" id="photoInput" placeholder="https://...jpg" style="flex:1;" />
+            <button type="button" class="secondary" id="addPhotoBtn" style="white-space:nowrap;">添加图片</button>
+          </div>
           <div class="photos-list" id="photosList"></div>
         </div>
         <div class="inline">
@@ -104,7 +107,7 @@
           <button type="submit">➕ 添加地点</button>
           <button type="button" class="secondary" id="resetFormBtn">清空表单</button>
         </div>
-        <p class="small">必填项：名称 / 描述 / 日期 / 坐标 / 标记颜色。</p>
+        <p class="small">必填项：名称、坐标。其他字段可选但推荐填写描述/日期以丰富信息。</p>
       </form>
       <h2 style="margin-top:26px;">🗺️ 坐标拾取</h2>
       <div id="map"></div>
@@ -205,10 +208,7 @@
     function collectErrors(fields){
       const errs = [];
       if(!fields.name) errs.push('名称不能为空');
-      if(!fields.description) errs.push('描述不能为空');
-      if(!fields.date) errs.push('日期不能为空');
       if(!fields.coordinates) errs.push('坐标不能为空');
-      if(!fields.markerColor) errs.push('标记颜色不能为空');
       if(fields.coordinates && !validateCoordinates(fields.coordinates)) errs.push('坐标格式错误或范围非法 (lng,lat)');
       if(fields.url && !isValidUrl(fields.url)) errs.push('关联链接 URL 非法');
       for(const p of fields.photos){ if(!isValidUrl(p)) { errs.push('图片 URL 非法: '+p); break; } }
@@ -219,6 +219,16 @@
     function showErrors(errs){
       if(!errs.length){ formErrorsEl.style.display='none'; formErrorsEl.textContent=''; return; }
       formErrorsEl.style.display='block'; formErrorsEl.innerHTML = errs.map(e=>`<div>• ${e}</div>`).join('');
+    }
+
+    function clearInvalidHighlights(){
+      form.querySelectorAll('.invalid').forEach(el=> el.classList.remove('invalid'));
+    }
+    function applyInvalidHighlights(fields){
+      if(!fields.name) document.getElementById('name').classList.add('invalid');
+      if(!fields.coordinates || !validateCoordinates(fields.coordinates)) document.getElementById('coordinates').classList.add('invalid');
+      if(fields.url && !isValidUrl(fields.url)) document.getElementById('url').classList.add('invalid');
+      if(fields.photos.some(p=>!isValidUrl(p))) photoInput.classList.add('invalid');
     }
 
     // 拖拽排序
@@ -258,6 +268,7 @@
       const draftObj = { name, coordinates, description, date, url, urlLabel, photos:[...photosTemp], categories, markerColor };
       const errs = collectErrors(draftObj);
       showErrors(errs);
+      clearInvalidHighlights(); applyInvalidHighlights(draftObj);
       if(errs.length){ return; }
       if(editingIndex !== null){
         locations[editingIndex] = draftObj;
@@ -300,6 +311,16 @@
           showErrors([]);
           window.scrollTo({ top:0, behavior:'smooth' });
         };
+        // 复选框用于批量删除
+        const checkbox = document.createElement('input');
+        checkbox.type='checkbox'; checkbox.className='loc-select'; checkbox.style.position='absolute'; checkbox.style.left='8px'; checkbox.style.top='10px';
+        item.appendChild(checkbox);
+        // 上下移动按钮（移动端降级）
+        const upBtn = document.createElement('button'); upBtn.type='button'; upBtn.textContent='↑'; upBtn.className='secondary'; upBtn.style.position='absolute'; upBtn.style.bottom='8px'; upBtn.style.right='70px'; upBtn.style.width='40px'; upBtn.style.padding='4px 0';
+        upBtn.onclick=()=>{ if(idx>0){ const mv=locations.splice(idx,1)[0]; locations.splice(idx-1,0,mv); renderLocations(); persistDraft(); triggerAutoPreview(); } };
+        const downBtn = document.createElement('button'); downBtn.type='button'; downBtn.textContent='↓'; downBtn.className='secondary'; downBtn.style.position='absolute'; downBtn.style.bottom='8px'; downBtn.style.right='8px'; downBtn.style.width='40px'; downBtn.style.padding='4px 0';
+        downBtn.onclick=()=>{ if(idx < locations.length-1){ const mv=locations.splice(idx,1)[0]; locations.splice(idx+1,0,mv); renderLocations(); persistDraft(); triggerAutoPreview(); } };
+        item.appendChild(upBtn); item.appendChild(downBtn);
         item.appendChild(editBtn);
         item.appendChild(delBtn); locationListEl.appendChild(item);
       });
@@ -326,6 +347,22 @@
       toggleAutoPreviewBtn.dataset.on = autoPreview ? '1':'0';
       if(autoPreview){ triggerAutoPreview(); } else { /* 保留当前 */ }
     };
+    // 批量删除按钮逻辑
+    const deleteSelectedBtn = document.createElement('button');
+    deleteSelectedBtn.type='button'; deleteSelectedBtn.className='danger'; deleteSelectedBtn.textContent='批量删除选中';
+    deleteSelectedBtn.onclick=()=>{
+      const selectedIdx = [];
+      locationListEl.querySelectorAll('.location-item').forEach((el,i)=>{ const cb = el.querySelector('.loc-select'); if(cb && cb.checked) selectedIdx.push(i); });
+      if(!selectedIdx.length) { alert('未选择任何地点'); return; }
+      if(!confirm('确定删除选中的 '+ selectedIdx.length +' 个地点?')) return;
+      // 从末尾开始删除避免索引偏移
+      selectedIdx.sort((a,b)=>b-a).forEach(idx=> locations.splice(idx,1));
+      renderLocations(); persistDraft(); triggerAutoPreview();
+    };
+    document.getElementById('locationList').insertAdjacentElement('beforebegin', deleteSelectedBtn);
+
+    // 添加图片按钮
+    document.getElementById('addPhotoBtn').onclick=()=>{ addPhotoUrl(); };
 
     // 导入文件
     document.getElementById('importFile').addEventListener('change', e=>{
@@ -378,6 +415,11 @@
     function triggerAutoPreview(){ if(autoPreview){ generateJson(); renderPreviewMap(); } }
     // 初始尝试预览
     triggerAutoPreview();
+
+    // 样式：为 invalid 类添加高亮（插入 style 动态确保覆盖）
+    const styleEl = document.createElement('style');
+    styleEl.textContent = '.invalid{border-color:#dc2626 !important; background:#fef2f2 !important;}@media(max-width:640px){#map,#previewMap{height:240px !important;} .location-item{font-size:12px;}}';
+    document.head.appendChild(styleEl);
   </script>
 </body>
 </html>
