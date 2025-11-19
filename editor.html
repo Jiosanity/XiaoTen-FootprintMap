@@ -190,7 +190,7 @@
 <body>
   <header>
     <h1>足迹数据构建器</h1>
-    <p>可视化录入地点信息，生成符合 FootprintMap 规范的 JSON 数据。</p>
+    <p>可视化录入地点信息，生成符合 XiaoTen-FootprintMap 规范的 JSON 数据。</p>
     <div style="margin-top:12px;">
       <a href="index.html" style="color:#fff;text-decoration:none;opacity:0.9;font-size:13px;border:1px solid rgba(255,255,255,0.3);padding:6px 12px;border-radius:6px;display:inline-block;">← 返回演示页</a>
     </div>
@@ -313,6 +313,7 @@
   
   <footer>
     <div>Made with ❤️ XiaoTen-FootprintMap 数据构建器 · 本地保存草稿，不会上传。</div>
+    <div style="margin-top:8px;font-size:12px;color:#94a3b8;">© <a href="https://www.xiaoten.com" target="_blank" rel="noopener noreferrer">XiaoTen</a></div>
   </footer>
 
   <script>
@@ -323,6 +324,7 @@
   <script src="https://webapi.amap.com/maps?v=2.0&key=4727334ebc13608dbe9ba75266c3d41a"></script>
   <script defer src="static/js/footprintmap.js"></script>
   <script src="static/js/theme.js"></script>
+  <script src="static/js/utils.js"></script>
   <script>
     const form = document.getElementById('locationForm');
     const photosListEl = document.getElementById('photosList');
@@ -342,8 +344,11 @@
     let selectedCategories = new Set();
     let selectedMarkerColor = '';
     
+    // localStorage 辅助函数由共享文件提供（static/js/utils.js）
+    // 全局可直接使用 `lsGet` / `lsSet` 或 `Utils.lsGet` / `Utils.lsSet`
+
     // 恢复导入自动排序偏好
-    try { const pref = localStorage.getItem('footprintmap_builder_importAutoSort'); if(pref) importAutoSort = pref==='true'; } catch(e){}
+    importAutoSort = lsGet('footprintmap_builder_importAutoSort','false') === 'true';
     if(document.getElementById('importAutoSort')) document.getElementById('importAutoSort').checked = importAutoSort;
     const markerGradients = {
       sunset: 'linear-gradient(135deg, #ffb347, #ff6f61)',
@@ -355,9 +360,10 @@
     };
 
     // 恢复草稿
-    try { const draft = localStorage.getItem('footprintmap_builder_locations'); if (draft) locations = JSON.parse(draft); } catch(e){}
+    const draft = lsGet('footprintmap_builder_locations', null);
+    if(draft){ try{ locations = JSON.parse(draft); }catch(e){} }
 
-    function persistDraft(){ localStorage.setItem('footprintmap_builder_locations', JSON.stringify(locations)); }
+    function persistDraft(){ lsSet('footprintmap_builder_locations', JSON.stringify(locations)); }
 
     function renderPhotosTemp(){
       photosListEl.innerHTML = '';
@@ -790,7 +796,7 @@
     // 保存导入自动排序偏好
     document.getElementById('importAutoSort').addEventListener('change', e=>{
       importAutoSort = e.target.checked;
-      localStorage.setItem('footprintmap_builder_importAutoSort', importAutoSort.toString());
+      lsSet('footprintmap_builder_importAutoSort', importAutoSort.toString());
     });
 
     // 初始渲染
