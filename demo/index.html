@@ -347,19 +347,19 @@
     </p>
   </div>
 
-  <!-- 引入高德地图 API -->
-  <script src="https://webapi.amap.com/maps?v=2.0&key=请替换为你的APIKey"></script>
-  
   <!-- 引入足迹地图 JS -->
   <script src="../static/js/footprintmap.js"></script>
   
   <!-- 初始化地图 -->
   <script>
-    // 注意：这里使用的是示例 Key，请替换为你自己的高德地图 API Key
-    const footprintMap = new FootprintMap({
+    // 若本地存储存在 amapKey，则作为初始化参数传入，由组件自行加载 AMap 脚本
+    const savedKey = localStorage.getItem('amapKey') || '';
+    const initOptions = {
       container: 'footprintMap',
       dataUrl: '../static/data/footprints.example.json'
-    });
+    };
+    if (savedKey) initOptions.amapKey = savedKey;
+    const footprintMap = new FootprintMap(initOptions);
 
     // 主题切换与 API Key 提示
     const toggleBtn = document.getElementById('toggleThemeBtn');
@@ -372,7 +372,18 @@
 
     apiTipBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      apiTipBox.style.display = apiTipBox.style.display === 'block' ? 'none' : 'block';
+      const current = localStorage.getItem('amapKey') || '';
+      const input = prompt('请输入你的高德地图 Web JS API Key：', current);
+      if (input !== null) {
+        const value = input.trim();
+        if (value) {
+          localStorage.setItem('amapKey', value);
+          location.reload();
+        } else {
+          localStorage.removeItem('amapKey');
+          location.reload();
+        }
+      }
     });
   </script>
 </body>

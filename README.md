@@ -3,6 +3,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![JavaScript](https://img.shields.io/badge/JavaScript-ES6+-yellow.svg)](https://developer.mozilla.org/en-US/docs/Web/JavaScript)
 [![AMap](https://img.shields.io/badge/AMap-2.0-06beb6)](https://lbs.amap.com/)
+[![Website](https://img.shields.io/website?url=https%3A%2F%2Fjiosanity.github.io%2Fxiaoten-footprintmap%2F)](https://jiosanity.github.io/xiaoten-footprintmap/)
 
 一个基于高德地图的纯前端足迹地图组件，支持标记集群、分类筛选、照片轮播等功能。
 
@@ -23,6 +24,8 @@
 ## 📸 演示
 
 在线演示：[https://Jiosanity.github.io/xiaoten-footprintmap/](https://Jiosanity.github.io/xiaoten-footprintmap/)
+
+提示：演示页右上角“🔑 API Key”按钮可快速填写并保存你的高德 Key，页面会自动使用此 Key 加载地图。
 
 ## 🚀 快速开始
 
