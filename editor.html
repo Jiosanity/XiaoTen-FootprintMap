@@ -729,17 +729,20 @@
           showErrors([]);
           document.getElementById('submitBtn').textContent = '✔ 保存修改';
           document.getElementById('cancelEditBtn').style.display = 'inline-block';
-          // 滚动并聚焦到坐标输入，方便用户调整坐标（若不可用则回退到地图或顶部）
-          const coordsEl = document.getElementById('coordinates');
-          const mapEl = document.getElementById('map');
-          if(coordsEl && typeof coordsEl.scrollIntoView === 'function'){
-            coordsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            try{ coordsEl.focus({ preventScroll: true }); if(typeof coordsEl.select === 'function') coordsEl.select(); }catch(e){}
-          } else if(mapEl && typeof mapEl.scrollIntoView === 'function'){
-            mapEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          } else {
-            window.scrollTo({ top:0, behavior:'smooth' });
-          }
+            // 强制滚动并聚焦到坐标输入，确保用户能直接编辑坐标
+            const coordsEl = document.getElementById('coordinates');
+            if(coordsEl && typeof coordsEl.scrollIntoView === 'function'){
+              // 先滚动到可见位置
+              coordsEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              // 在短时延后再聚焦并选中，避免与滚动/重排冲突
+              setTimeout(()=>{
+                try{ coordsEl.focus({ preventScroll: true }); if(typeof coordsEl.select === 'function') coordsEl.select(); }catch(e){}
+              }, 220);
+            } else {
+              // 回退到页面顶部以保证表单可见
+              window.scrollTo({ top:0, behavior:'smooth' });
+              setTimeout(()=>{ try{ if(coordsEl) coordsEl.focus(); }catch(e){} }, 300);
+            }
         };
         
         const delBtn = document.createElement('button'); 
