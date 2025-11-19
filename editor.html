@@ -484,7 +484,7 @@
       } else {
         locations.push(draftObj);
       }
-      photosTemp=[]; renderPhotosTemp(); form.reset(); renderLocations(); persistDraft(); triggerAutoPreview(); jsonOutput.textContent=''; selectedMarkerColor=''; document.getElementById('markerColor').value=''; selectedCategories=new Set(); renderCategoryOptions(); updateMarkerSelection();
+      photosTemp=[]; renderPhotosTemp(); form.reset(); renderLocations(); persistDraft(); triggerAutoPreview(); selectedMarkerColor=''; document.getElementById('markerColor').value=''; selectedCategories=new Set(); renderCategoryOptions(); updateMarkerSelection();
     });
 
     document.getElementById('resetFormBtn').onclick=()=>{ form.reset(); photosTemp=[]; renderPhotosTemp(); };
@@ -502,7 +502,7 @@
       document.getElementById('submitBtn').textContent = '✚ 添加地点';
       document.getElementById('cancelEditBtn').style.display = 'none';
     };
-    document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); triggerAutoPreview(); jsonOutput.textContent=''; } };
+    document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); jsonOutput.textContent=''; const wrap = document.getElementById('previewMapWrap'); const previewMapEl = document.getElementById('previewMap'); if(previewMapEl) previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;">暂无足迹数据，请添加地点或导入 JSON 文件后即可展示。</div>'; } };
     document.getElementById('removeLastBtn').onclick=()=>{ locations.pop(); renderLocations(); persistDraft(); triggerAutoPreview(); };
 
     function renderLocations(){
@@ -866,10 +866,8 @@
       wrap._lastBlobUrl = url;
     }
     function triggerAutoPreview(){ 
-      if(locations.length > 0) {
-        generateJson(); 
-        renderPreviewMap(); 
-      }
+      generateJson(); 
+      renderPreviewMap(); 
     }
     // 初始尝试预览
     if(locations.length > 0) {
