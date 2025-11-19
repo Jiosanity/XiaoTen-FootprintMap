@@ -219,8 +219,8 @@
       </div>
       <pre id="jsonOutput" aria-label="输出 JSON"></pre>
       <h2 style="margin-top:24px;">🔍 实时预览</h2>
-      <div class="footprint-map" id="previewMap" data-amap-key="4727334ebc13608dbe9ba75266c3d41a" style="width:100%;height:400px;"></div>
-      <p class="small">预览使用正式 FootprintMap 组件（含聚类、筛选），与实际效果一致。</p>
+      <div id="previewMap" style="width:100%;height:400px;"></div>
+      <p class="small">预览显示地点标记和基本信息，导出的 JSON 可用于正式 FootprintMap 组件（含完整聚类、筛选等功能）。</p>
     </section>
   </main>
   <footer>
@@ -228,6 +228,7 @@
   </footer>
 
   <script src="https://webapi.amap.com/maps?v=2.0&key=4727334ebc13608dbe9ba75266c3d41a"></script>
+  <script defer src="../static/js/footprintmap.js"></script>
   <script>
     const form = document.getElementById('locationForm');
     const photosListEl = document.getElementById('photosList');
@@ -573,11 +574,11 @@
       });
     }
 
-    // 预览地图渲染（使用正式 FootprintMap 组件）
-    async function renderPreviewMap(){
+    // 预览地图渲染（使用简化版标记）
+    function renderPreviewMap(){
       if(!previewMapEl) return;
       if(!locations.length){ 
-        previewMapEl.innerHTML='<div style="padding:12px;font-size:12px;color:#64748b;">暂无地点，添加后显示预览。</div>'; 
+        previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;">暂无地点，添加后显示预览。</div>'; 
         return; 
       }
       try {
@@ -607,31 +608,47 @@
           });
         }
         
-        // 创建临时数据 Blob URL
-        const dataBlob = new Blob([JSON.stringify({ locations: exportLocations })], { type: 'application/json' });
-        const dataUrl = URL.createObjectURL(dataBlob);
-        
-        // 重置容器并重新初始化 FootprintMap
+        // 重置并创建地图
         previewMapEl.innerHTML = '';
-        previewMapEl.className = 'footprint-map';
-        previewMapEl.dataset.json = dataUrl;
-        previewMapEl.dataset.amapKey = '4727334ebc13608dbe9ba75266c3d41a';
         previewMapEl.style.width = '100%';
         previewMapEl.style.height = '400px';
+        previewMapEl.style.borderRadius = '8px';
+        previewMapEl.style.overflow = 'hidden';
+        previewMapEl.style.border = '1px solid #cbd5e1';
         
-        // 动态加载并重新初始化 FootprintMap（如果已加载则直接调用 bootstrap）
-        if(window.FootprintMapCore && typeof window.FootprintMapCore.bootstrap === 'function'){
-          await window.FootprintMapCore.bootstrap(previewMapEl);
+        if(!previewMapInstance){
+          previewMapInstance = new AMap.Map(previewMapEl,{ viewMode:'2D', zoom:4, center:[105,36] });
         } else {
-          // 如果 FootprintMap 脚本未暴露全局 API，则模拟初始化触发
-          const initEvent = new Event('DOMContentLoaded');
-          document.dispatchEvent(initEvent);
+          previewMapInstance.clearMap();
         }
         
-        // 清理临时 URL（延迟以确保加载完成）
-        setTimeout(() => URL.revokeObjectURL(dataUrl), 5000);
+        // 渲染标记
+        const bounds = [];
+        exportLocations.forEach((loc,i)=>{
+          const coord = validateCoordinates(loc.coordinates);
+          if(!coord) return;
+          const gradient = markerGradients[loc.markerColor] || markerGradients.sunset;
+          const marker = new AMap.Marker({
+            position:[coord.lng, coord.lat],
+            content:`<div style="width:24px;height:24px;border-radius:50%;background:${gradient};border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.3);cursor:pointer" title="${loc.name}"></div>`,
+            offset:new AMap.Pixel(-12,-12)
+          });
+          marker.on('click',()=>{
+            const info = new AMap.InfoWindow({ 
+              anchor:'bottom-center', 
+              content:`<div style='padding:12px;font-size:13px;max-width:240px;'><strong style='font-size:14px;color:#334155;'>${loc.name}</strong><br><span style='color:#64748b;font-size:11px;'>${loc.date||''}</span><br><p style='margin:8px 0 0;color:#475569;line-height:1.4;'>${(loc.description||'').slice(0,100)}${loc.description&&loc.description.length>100?'...':''}</p></div>` 
+            });
+            info.open(previewMapInstance,[coord.lng, coord.lat]);
+          });
+          previewMapInstance.add(marker);
+          bounds.push([coord.lng, coord.lat]);
+        });
+        
+        if(bounds.length){ 
+          previewMapInstance.setFitView(null, false, [60, 80, 60, 80]); 
+        }
       } catch(err){
-        previewMapEl.innerHTML = '<div style="padding:12px;color:#dc2626;font-size:12px;">预览渲染失败: '+ err.message +'</div>';
+        previewMapEl.innerHTML = '<div style="padding:20px;color:#dc2626;font-size:13px;text-align:center;">预览渲染失败: '+ err.message +'</div>';
       }
     }
     function triggerAutoPreview(){ if(autoPreview){ generateJson(); renderPreviewMap(); } }
