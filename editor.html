@@ -17,6 +17,8 @@
     label { display:block; font-size:12px; font-weight:600; color:#475569; margin-bottom:5px; }
     input[type=text], input[type=date], input[type=file], textarea, select { 
       width:100%; 
+      max-width:100%;
+      min-width:0;
       padding:9px 12px; 
       border:1px solid #cbd5e1; 
       border-radius:6px; 
@@ -24,6 +26,7 @@
       background:#fff; 
       box-sizing:border-box;
       font-family: inherit;
+      overflow:hidden;
     }
     input[type=text]:focus, input[type=date]:focus, textarea:focus, select:focus {
       outline:none;
@@ -31,7 +34,7 @@
     }
     input[type=checkbox] { cursor:pointer; }
     textarea { resize:vertical; min-height:80px; line-height:1.5; }
-    .inline { display:flex; gap:12px; }
+    .inline { display:flex; gap:12px; flex-wrap:wrap; }
     .inline .group { flex:1; min-width:0; }
     button, .btn { 
       cursor:pointer; 
@@ -799,8 +802,29 @@
       lsSet('footprintmap_builder_importAutoSort', importAutoSort.toString());
     });
 
-    // 初始渲染
-    renderLocations(); renderPhotosTemp();
+    // 初始渲染（若无草稿则尝试加载示例数据）
+    (function initialRender(){
+      if(locations && locations.length>0){
+        renderLocations(); renderPhotosTemp();
+        return;
+      }
+      // locations 为空时，尝试加载示例 JSON（静态文件）
+      try{
+        fetch('./static/data/footprints.example.json').then(res=>{ if(!res.ok) throw new Error('no sample'); return res.json(); }).then(data=>{
+          if(data && Array.isArray(data.locations) && data.locations.length){
+            locations = data.locations.filter(l=> l && l.name && l.coordinates);
+            renderLocations(); renderPhotosTemp(); persistDraft();
+            // 生成 JSON 和尝试渲染预览（若位置存在）
+            generateJson(); renderPreviewMap();
+            return;
+          }
+          // 若样例不可用，仍然渲染空状态
+          renderLocations(); renderPhotosTemp();
+        }).catch(()=>{
+          renderLocations(); renderPhotosTemp();
+        });
+      }catch(e){ renderLocations(); renderPhotosTemp(); }
+    })();
 
     // 地图初始化与点击拾取
     const map = new AMap.Map('map',{ viewMode:'2D', zoom:4, center:[105,36] });
