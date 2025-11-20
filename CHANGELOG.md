@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.2.0] - 2025-11-19
 
+## [1.3.0] - 2025-11-19
+
+### Added
+- Project repository published: full source code, demo and example data available at `https://github.com/Jiosanity/XiaoTen-FootprintMap`.
+- Visual editor (`editor.html`) for local interactive creation and editing of `locations` data, including map coordinate picker, photo management, category/tag editing, and JSON import/export.
+
+### Changed
+- Documentation updated to include editor usage and release notes for v1.3.
+
+### Fixed
+- Several mobile UI/UX fixes in the editor: button wrap alignment, date-row layout, and photo carousel scroll behavior.
+
+
 ### Added
 - 2D map mode with disabled rotation and tilt for better UX
 - Zoom controls (ToolBar) in top-right corner
@@ -59,6 +72,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - JSON data format support
 - Pure static implementation (no backend required)
 
-[1.2.0]: https://github.com/Jiosanity/xiaoten-footprintmap/compare/v1.1.0...v1.2.0
-[1.1.0]: https://github.com/Jiosanity/xiaoten-footprintmap/compare/v1.0.0...v1.1.0
-[1.0.0]: https://github.com/Jiosanity/xiaoten-footprintmap/releases/tag/v1.0.0
+[1.3.0]: https://github.com/Jiosanity/XiaoTen-FootprintMap/compare/v1.2.0...v1.3.0
+[1.2.0]: https://github.com/Jiosanity/XiaoTen-FootprintMap/compare/v1.1.0...v1.2.0
+[1.1.0]: https://github.com/Jiosanity/XiaoTen-FootprintMap/compare/v1.0.0...v1.1.0
+[1.0.0]: https://github.com/Jiosanity/XiaoTen-FootprintMap/releases/tag/v1.0.0

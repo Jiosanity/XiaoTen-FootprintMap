@@ -9,6 +9,9 @@
 
 简体中文 | [在线演示](https://footprintmap.xiaoten.com/)
 
+项目地址：https://github.com/Jiosanity/XiaoTen-FootprintMap
+
+
 ## ✨ 特性
 
 - 🗺️ **纯静态实现** - 纯前端，无需后端，仅需引入 JS/CSS 文件
@@ -19,6 +22,7 @@
 - 📱 **移动端优化** - 响应式设计，触控友好
 - 🎨 **自定义标记** - 6种预设渐变色 + 自定义颜色支持
 - ⚡ **性能优化** - 精简代码（475行 JS），按需加载
+ - ⚡ **性能优化** - 精简代码（475行 JS），按需加载
 - 🔌 **即插即用** - 支持任何网站：WordPress、Hexo、Jekyll、Hugo 等
 
 ## 📸 演示
@@ -45,7 +49,7 @@
   <title>我的足迹地图</title>
   <!-- 引入 CSS（本地或 CDN，二选一） -->
   <link rel="stylesheet" href="css/footprintmap.css">
-  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/css/footprintmap.css"> -->
+  <!-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.3.0/static/css/footprintmap.css"> -->
   <style>
     .footprint-map { width: 100%; height: 600px; }
   </style>
@@ -55,7 +59,7 @@
   </script>
   <!-- 引入 JS（本地或 CDN，二选一） -->
   <script defer src="js/footprintmap.js"></script>
-  <!-- <script defer src="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.2.0/static/js/footprintmap.js"></script> -->
+  <!-- <script defer src="https://cdn.jsdelivr.net/gh/Jiosanity/XiaoTen-FootprintMap@v1.3.0/static/js/footprintmap.js"></script> -->
   <!-- 无需单独引入高德地图脚本，组件会按需加载 -->
   <!-- 无需手写 new FootprintMap(...)，组件会自动初始化 -->
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -147,7 +151,14 @@
 
 查看 [CHANGELOG.md](CHANGELOG.md) 了解详细的版本更新历史。
 
-### 最新版本 v1.2.0 (2025-11-19)
+### 最新版本 v1.3.0 (2025-11-19)
+
+- 🚀 **项目开源**：源码已托管至 `https://github.com/Jiosanity/XiaoTen-FootprintMap`，包含示例数据、文档与演示页面。
+- 🛠️ **新增可视化编辑器（editor.html）**：提供本地交互式编辑体验，支持地图拾取坐标、添加/编辑地点、导入示例/JSON、生成并下载 JSON、复制到剪贴板以及即时预览（含聚类、筛选、主题同步）。
+- 📱 **编辑器移动端优化**：修复按钮换行缩进、日期行在窄屏保持一行、图片查看器与轮播滚动优化等交互细节。
+- ⚡ 其它若干细节修复与文档补充（CHANGELOG 中有完整记录）。
+
+### v1.2.0 (2025-11-19)
 
 - ✨ 新增 2D 地图模式，禁用旋转和倾斜
 - ⚡ 代码精简：JS 从 879 行优化到 475 行（减少 45.9%）
