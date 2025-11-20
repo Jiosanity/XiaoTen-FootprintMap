@@ -57,7 +57,7 @@
       const locations = await fetchLocations(dataUrl);
 
       if (!locations.length) {
-        container.innerHTML = '<div class="footprint-map__error">暂无足迹数据，请添加地点或导入 JSON 文件，然后点击"刷新预览"。</div>';
+        container.innerHTML = '<div class="footprint-map__error">暂无足迹数据，请添加地点、导入 JSON 文件或导入示例数据，然后点击"刷新预览"。</div>';
         return;
       }
 

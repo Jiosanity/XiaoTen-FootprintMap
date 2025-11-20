@@ -318,7 +318,7 @@
         <button type="button" class="secondary" id="copyBtn">复制到剪贴板</button>
         <button type="button" class="secondary" id="toggleSortDateBtn" data-on="0">开启按日期排序</button>
       </div>
-      <pre id="jsonOutput" aria-label="输出 JSON" style="min-height:340px;"></pre>
+      <pre id="jsonOutput" aria-label="输出 JSON"></pre>
 
       <h2 style="margin-top:12px;">📍 已添加地点</h2>
       <div class="location-list" id="locationList"></div>
@@ -623,7 +623,7 @@
       document.getElementById('submitBtn').textContent = '✚ 添加地点';
       document.getElementById('cancelEditBtn').style.display = 'none';
     };
-    document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); jsonOutput.textContent=''; const wrap = document.getElementById('previewMapWrap'); const previewMapEl = document.getElementById('previewMap'); if(previewMapEl) previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点或导入 JSON 文件，然后点击"刷新预览"。</div>'; } };
+    document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); jsonOutput.textContent=''; const wrap = document.getElementById('previewMapWrap'); const previewMapEl = document.getElementById('previewMap'); if(previewMapEl) previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点、导入 JSON 文件或导入示例数据，然后点击"刷新预览"。</div>'; } };
 
     
     document.getElementById('removeLastBtn').onclick=()=>{
