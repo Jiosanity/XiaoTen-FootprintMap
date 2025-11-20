@@ -323,9 +323,10 @@
   <div style="max-width:1400px; margin:0 auto; padding:0 24px 20px;">
     <section class="panel" style="width:100%;">
       <div style="display:flex; align-items:center; justify-content:space-between;">
-        <h2 style="margin:0;">🔍 效果预览</h2>
-        <div style="display:flex; gap:8px; align-items:center;">
+        <h2 style="margin:0; display:flex; align-items:center; gap:8px;">🔍 效果预览
           <button type="button" class="secondary" id="refreshPreviewBtn" style="font-size:13px; padding:7px 14px;">🔄 刷新预览</button>
+        </h2>
+        <div style="display:flex; gap:8px; align-items:center;">
           <button type="button" class="secondary" id="toggleThemeBtn" style="font-size:13px; padding:7px 14px;">🌓 主题</button>
         </div>
       </div>
@@ -953,8 +954,16 @@
         renderLocations(); renderPhotosTemp();
         return;
       }
-      // 不自动加载示例：直接渲染空状态
+      // 不自动加载示例：直接渲染空状态，保持与刷新预览时一致的提示（含导入示例数据提示）
       renderLocations(); renderPhotosTemp();
+      try{
+        const wrap = document.getElementById('previewMapWrap');
+        const previewMapEl = document.getElementById('previewMap');
+        if(wrap && previewMapEl && !wrap._initialized){
+          previewMapEl.innerHTML = '<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点、导入 JSON 文件或导入示例数据，然后点击"刷新预览"。</div>';
+          wrap._initialized = true;
+        }
+      }catch(e){/* ignore */}
     })();
 
     // 地图初始化与点击拾取
