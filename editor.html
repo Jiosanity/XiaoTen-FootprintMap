@@ -303,7 +303,7 @@
         <p class="small">会尝试读取其中的 locations 并追加。</p>
       </div>
 
-      <h2 style="margin-top:6px;">🧾 导出 JSON</h2>
+      <h2 style="margin-top:6px;">JSON代码</h2>
       <div class="controls">
         <button type="button" id="generateBtn">下载 JSON</button>
         <button type="button" class="secondary" id="copyBtn">复制到剪贴板</button>
@@ -614,6 +614,8 @@
       document.getElementById('cancelEditBtn').style.display = 'none';
     };
     document.getElementById('clearAllBtn').onclick=()=>{ if(confirm('确定清空所有地点?')){ locations=[]; renderLocations(); persistDraft(); jsonOutput.textContent=''; const wrap = document.getElementById('previewMapWrap'); const previewMapEl = document.getElementById('previewMap'); if(previewMapEl) previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点或导入 JSON 文件，然后点击"刷新预览"。</div>'; } };
+
+    
     document.getElementById('removeLastBtn').onclick=()=>{
       // 删除最后一个并保持 UI 与数据同步
       locations.pop();
@@ -856,6 +858,40 @@
       navigator.clipboard.writeText(jsonOutput.textContent).then(()=> alert('已复制到剪贴板'));
     };
     document.getElementById('toggleSortDateBtn').onclick=()=>{ sortByDate = !sortByDate; document.getElementById('toggleSortDateBtn').textContent = sortByDate ? '关闭按日期排序' : '开启按日期排序'; generateJson(); };
+
+    // 在导出控件区域（按日期排序按钮后）插入“导入示例数据”按钮，颜色改为绿色以区别于蓝/白/红
+    (function insertImportSampleAfterSort(){
+      try{
+        const sortBtn = document.getElementById('toggleSortDateBtn');
+        if(!sortBtn) return;
+        const importSampleBtn2 = document.createElement('button');
+        importSampleBtn2.type = 'button';
+        importSampleBtn2.className = 'secondary';
+        importSampleBtn2.style.marginLeft = '8px';
+        // 使用绿色背景，避免蓝/白/红
+        importSampleBtn2.style.background = '#10b981';
+        importSampleBtn2.style.borderColor = '#10b981';
+        importSampleBtn2.style.color = '#fff';
+        importSampleBtn2.textContent = '导入示例数据';
+        importSampleBtn2.title = '从 static/data/footprints.example.json 加载示例数据（将替换当前数据）';
+        importSampleBtn2.onclick = async ()=>{
+          if(!confirm('将用示例数据替换当前已添加的地点，确定要继续吗？')) return;
+          try{
+            const res = await fetch('./static/data/footprints.example.json');
+            if(!res.ok) throw new Error('无法加载示例数据');
+            const data = await res.json();
+            if(!data || !Array.isArray(data.locations)) throw new Error('示例数据格式不正确');
+            locations = data.locations.filter(l=> l && l.name && l.coordinates).map(l=> ({ ...l, date: formatDateISO(l.date) || l.date }));
+            renderLocations(); renderPhotosTemp(); persistDraft(); generateJson(); renderPreviewMap();
+            alert('示例数据已加载');
+          }catch(err){ alert('加载示例数据失败：' + (err && err.message ? err.message : err)); }
+        };
+        // 插入到 sortBtn 之后
+        if(sortBtn.parentNode){
+          sortBtn.parentNode.insertBefore(importSampleBtn2, sortBtn.nextSibling);
+        }
+      }catch(e){ console.warn('插入导入示例数据按钮失败', e); }
+    })();
     document.getElementById('refreshPreviewBtn').onclick=()=>{ renderPreviewMap(); };
     // 主题切换由 shared script 管理，按钮文本与 demo 保持一致
     if(window.Theme) Theme.init({ btnId: 'toggleThemeBtn', previewSelector: '#previewMapWrap' });
@@ -875,26 +911,6 @@
     const deleteBtnWrap = document.createElement('div');
     deleteBtnWrap.style.marginBottom = '18px';
     deleteBtnWrap.appendChild(deleteSelectedBtn);
-    // 添加“导入示例数据”按钮（在批量删除按钮之后）
-    const importSampleBtn = document.createElement('button');
-    importSampleBtn.type = 'button';
-    importSampleBtn.className = 'secondary';
-    importSampleBtn.style.marginLeft = '8px';
-    importSampleBtn.textContent = '导入示例数据';
-    importSampleBtn.title = '从 static/data/footprints.example.json 加载示例数据（将替换当前数据）';
-    importSampleBtn.onclick = async ()=>{
-      if(!confirm('将用示例数据替换当前已添加的地点，确定要继续吗？')) return;
-      try{
-        const res = await fetch('./static/data/footprints.example.json');
-        if(!res.ok) throw new Error('无法加载示例数据');
-        const data = await res.json();
-        if(!data || !Array.isArray(data.locations)) throw new Error('示例数据格式不正确');
-        locations = data.locations.filter(l=> l && l.name && l.coordinates).map(l=> ({ ...l, date: formatDateISO(l.date) || l.date }));
-        renderLocations(); renderPhotosTemp(); persistDraft(); generateJson(); renderPreviewMap();
-        alert('示例数据已加载');
-      }catch(err){ alert('加载示例数据失败：' + (err && err.message ? err.message : err)); }
-    };
-    deleteBtnWrap.appendChild(importSampleBtn);
     document.getElementById('locationList').insertAdjacentElement('beforebegin', deleteBtnWrap);
 
     // 添加图片按钮
@@ -1000,7 +1016,7 @@
       if(!locations.length){ 
         // 只在初始化时显示提示，不清空已有内容
         if(!wrap._initialized) {
-          previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点或导入 JSON 文件，然后点击"刷新预览"。</div>'; 
+          previewMapEl.innerHTML='<div style="padding:20px;font-size:13px;color:#64748b;text-align:center;height:500px;display:flex;align-items:center;justify-content:center;background:#f8fafc;border-radius:8px;">暂无足迹数据，请添加地点、导入 JSON 文件或导入示例数据，然后点击"刷新预览"。</div>'; 
           wrap._initialized = true;
         }
         return; 
