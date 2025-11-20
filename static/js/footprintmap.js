@@ -338,7 +338,33 @@
           btn.addEventListener('click', e => {
             e.stopPropagation();
             const dir = btn.classList.contains('footprint-popup__photos-btn--next') ? 1 : -1;
-            track.scrollBy({ left: track.clientWidth * 0.85 * dir, behavior: 'smooth' });
+            // 更精确的滚动：根据子幻灯片位置计算下一张/上一张的 offsetLeft，避免固定距离在移动端导致多余空白
+            const slides = Array.from(track.querySelectorAll('.footprint-popup__slide'));
+            if (!slides.length) return;
+            const current = Math.round(track.scrollLeft);
+            let targetLeft = null;
+            if (dir > 0) {
+              // 找到第一个左偏移大于当前滚动位置的幻灯片
+              const next = slides.find(s => Math.round(s.offsetLeft) > current + 5);
+              if (next) {
+                targetLeft = next.offsetLeft;
+              } else {
+                // 到末尾
+                targetLeft = track.scrollWidth - track.clientWidth;
+              }
+            } else {
+              // 向前：找到最后一个左偏移小于当前滚动位置的幻灯片
+              const prev = slides.slice().reverse().find(s => Math.round(s.offsetLeft) < current - 5);
+              if (prev) {
+                targetLeft = prev.offsetLeft;
+              } else {
+                targetLeft = 0;
+              }
+            }
+            if (targetLeft === null) return;
+            // 将目标限定在合理范围内
+            targetLeft = Math.max(0, Math.min(targetLeft, track.scrollWidth - track.clientWidth));
+            track.scrollTo({ left: Math.floor(targetLeft), behavior: 'smooth' });
           });
         });
       }
